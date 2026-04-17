@@ -21,6 +21,7 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     initializeCharStates(generateWords(WORDS_COUNT))
   );
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const statusRef = useRef<TestStatus>('idle');
   const [status, setStatus] = useState<TestStatus>('idle');
   const [mode, setModeState] = useState<TestMode>(initialMode);
@@ -87,7 +88,90 @@ export function useTypingEngine(initialMode: TestMode = 30) {
       startTimer();
     }
 
+    const prevValueLength = currentCharIndex + (value.endsWith(' ') ? 1 : 0);
+    const newValueLength = value.length;
+
+    if (newValueLength < prevValueLength) {
+      if (value.endsWith(' ')) {
+        if (currentWordIndex > 0) {
+          setCurrentWordIndex((prev) => prev - 1);
+          setCurrentCharIndex(words[currentWordIndex - 1]?.length || 0);
+          
+          setCharStates((prev) => {
+            const newCharStates = [...prev];
+            const currentWord = newCharStates[currentWordIndex];
+            if (currentWord) {
+              newCharStates[currentWordIndex] = currentWord.map((char) => ({
+                ...char,
+                status: 'idle',
+              }));
+            }
+            return newCharStates;
+          });
+        }
+      } else {
+        setCurrentCharIndex((prev) => Math.max(0, prev - 1));
+        
+        setCharStates((prev) => {
+          const newCharStates = [...prev];
+          if (newCharStates[currentWordIndex]) {
+            newCharStates[currentWordIndex] = [...prev[currentWordIndex]];
+            const charIdx = currentCharIndex - 1;
+            if (charIdx >= 0 && newCharStates[currentWordIndex][charIdx]) {
+              newCharStates[currentWordIndex][charIdx] = {
+                ...prev[currentWordIndex][charIdx],
+                status: 'current',
+              };
+            }
+            const nextCharIdx = currentCharIndex;
+            if (nextCharIdx < newCharStates[currentWordIndex].length) {
+              newCharStates[currentWordIndex][nextCharIdx] = {
+                ...prev[currentWordIndex][nextCharIdx],
+                status: 'idle',
+              };
+            }
+          }
+          return newCharStates;
+        });
+      }
+      
+      if (inputRef.current) {
+        inputRef.current.value = value;
+      }
+      
+      setCharStates((prev) => {
+        setStats(computeStats(prev, elapsed));
+        return prev;
+      });
+      return;
+    }
+
     if (value.endsWith(' ')) {
+      if (value.trim().length === 0 || currentCharIndex === 0) {
+        setCharStates((prev) => {
+          const newCharStates = [...prev];
+          if (newCharStates[currentWordIndex] && newCharStates[currentWordIndex].length > 0) {
+            newCharStates[currentWordIndex] = [...prev[currentWordIndex]];
+            const expectedChar = words[currentWordIndex]?.[0];
+            newCharStates[currentWordIndex][0] = {
+              char: expectedChar || ' ',
+              status: 'incorrect',
+            };
+          }
+          return newCharStates;
+        });
+        
+        if (inputRef.current) {
+          inputRef.current.value = '';
+        }
+        
+        setCharStates((prev) => {
+          setStats(computeStats(prev, elapsed));
+          return prev;
+        });
+        return;
+      }
+
       setCurrentWordIndex((prev) => {
         const nextWordIndex = prev + 1;
         setCurrentCharIndex(0);

@@ -36,3 +36,7 @@ body {
 .cursor-blink {
   animation: blink 1s step-end infinite;
 }
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
