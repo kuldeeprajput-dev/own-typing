@@ -106,6 +106,7 @@ export function useTypingEngine(initialMode: TestMode = 30) {
                 status: 'idle',
               }));
             }
+            setStats(computeStats(newCharStates, elapsed));
             return newCharStates;
           });
         }
@@ -131,6 +132,7 @@ export function useTypingEngine(initialMode: TestMode = 30) {
               };
             }
           }
+          setStats(computeStats(newCharStates, elapsed));
           return newCharStates;
         });
       }
@@ -138,11 +140,6 @@ export function useTypingEngine(initialMode: TestMode = 30) {
       if (inputRef.current) {
         inputRef.current.value = value;
       }
-      
-      setCharStates((prev) => {
-        setStats(computeStats(prev, elapsed));
-        return prev;
-      });
       return;
     }
 
@@ -194,41 +191,51 @@ export function useTypingEngine(initialMode: TestMode = 30) {
         inputRef.current.value = '';
       }
     } else {
-      setCurrentCharIndex((prevCharIndex) => {
-        const typedChar = value[prevCharIndex];
-        const expectedChar = words[currentWordIndex]?.[prevCharIndex];
+      const typedChar = value[currentCharIndex];
+      const expectedChar = words[currentWordIndex]?.[currentCharIndex];
 
-        if (typedChar !== undefined && expectedChar !== undefined) {
-          const isCorrect = typedChar === expectedChar;
+      if (typedChar !== undefined) {
+        const isCorrect = typedChar === expectedChar;
 
+        setCharStates((prev) => {
+          const newCharStates = [...prev];
+          if (!newCharStates[currentWordIndex]) {
+            newCharStates[currentWordIndex] = [];
+          }
+          newCharStates[currentWordIndex] = [...(prev[currentWordIndex] || [])];
+          
+          const charToShow = expectedChar || typedChar;
+          
+          if (currentCharIndex < (words[currentWordIndex]?.length || 0)) {
+            newCharStates[currentWordIndex][currentCharIndex] = {
+              char: charToShow,
+              status: isCorrect ? 'correct' : 'incorrect',
+            };
+          } else {
+            newCharStates[currentWordIndex].push({
+              char: typedChar,
+              status: 'incorrect',
+            });
+          }
+          return newCharStates;
+        });
+
+        const nextCharIndex = currentCharIndex + 1;
+
+        if (nextCharIndex < (words[currentWordIndex]?.length || 0)) {
           setCharStates((prev) => {
             const newCharStates = [...prev];
-            newCharStates[currentWordIndex] = [...prev[currentWordIndex]];
-            newCharStates[currentWordIndex][prevCharIndex] = {
-              char: expectedChar,
-              status: isCorrect ? 'correct' : 'incorrect',
+            newCharStates[currentWordIndex] = [...(prev[currentWordIndex] || [])];
+            newCharStates[currentWordIndex][nextCharIndex] = {
+              char: words[currentWordIndex][nextCharIndex],
+              status: 'current',
             };
             return newCharStates;
           });
-
-          const nextCharIndex = prevCharIndex + 1;
-
-          if (words[currentWordIndex] && nextCharIndex < words[currentWordIndex].length) {
-            setCharStates((prev) => {
-              const newCharStates = [...prev];
-              newCharStates[currentWordIndex] = [...prev[currentWordIndex]];
-              newCharStates[currentWordIndex][nextCharIndex] = {
-                char: words[currentWordIndex][nextCharIndex],
-                status: 'current',
-              };
-              return newCharStates;
-            });
-          }
-
-          return nextCharIndex;
         }
-        return prevCharIndex;
-      });
+
+setCurrentCharIndex(nextCharIndex);
+      }
     }
 
     setCharStates((prev) => {

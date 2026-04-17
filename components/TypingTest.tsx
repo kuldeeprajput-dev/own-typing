@@ -6,9 +6,11 @@ import { TestMode } from '@/types';
 import ModeSelector from './ModeSelector';
 import Stats from './Stats';
 import WordDisplay from './WordDisplay';
+import ThemeToggle from './ThemeToggle';
 
 export default function TypingTest() {
   const [isFocused, setIsFocused] = useState(false);
+  const [isDark, setIsDark] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -23,6 +25,10 @@ export default function TypingTest() {
     setMode,
     inputRef,
   } = useTypingEngine(30);
+
+  const toggleTheme = useCallback(() => {
+    setIsDark((prev) => !prev);
+  }, []);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -63,14 +69,16 @@ export default function TypingTest() {
 
   return (
     <div 
-      className="flex flex-col items-center justify-center min-h-screen bg-[#0f0f0f] text-zinc-100 p-4"
+      className={`flex flex-col items-center justify-center min-h-screen p-4 transition-colors duration-300 ${isDark ? 'bg-[#0f0f0f] text-zinc-100' : 'bg-gray-100 text-gray-900'}`}
       onClick={() => inputRef.current?.focus()}
     >
+      <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+
       {(status === 'idle' || status === 'finished') && (
-        <ModeSelector mode={mode} onModeChange={handleModeChange} />
+        <ModeSelector mode={mode} onModeChange={handleModeChange} isDark={isDark} />
       )}
 
-      <Stats stats={stats} mode={mode} elapsed={elapsed} bestWpm={null} />
+      <Stats stats={stats} mode={mode} elapsed={elapsed} bestWpm={null} isDark={isDark} />
 
       {status !== 'finished' && (
         <div
@@ -78,10 +86,10 @@ export default function TypingTest() {
           className="relative w-full max-w-7xl cursor-text text-center mt-8"
           style={{ height: '6.5rem', overflow: 'hidden' }}
         >
-          <WordDisplay charStates={charStates} words={words} />
+          <WordDisplay charStates={charStates} words={words} isDark={isDark} />
           {!isFocused && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="px-4 py-2 bg-zinc-800/80 rounded-lg text-zinc-400 text-sm">
+              <div className={`px-4 py-2 rounded-lg text-sm ${isDark ? 'bg-zinc-800/80 text-zinc-400' : 'bg-gray-200/80 text-gray-600'}`}>
                 Click to focus
               </div>
             </div>
@@ -92,7 +100,7 @@ export default function TypingTest() {
       {status === 'finished' && (
         <div className="flex flex-col items-center mt-8">
           <div className="text-4xl font-bold mb-2">{stats.wpm} WPM</div>
-          <div className="text-zinc-400 mb-4">Accuracy: {stats.accuracy}%</div>
+          <div className={`mb-4 ${isDark ? 'text-zinc-400' : 'text-gray-600'}`}>Accuracy: {stats.accuracy}%</div>
           <button
             onClick={handleTryAgain}
             className="px-6 py-2 bg-amber-500 text-black font-bold rounded-lg hover:bg-amber-400 transition-colors"
@@ -116,7 +124,7 @@ export default function TypingTest() {
       {(status === 'idle' || status === 'running') && (
         <button
           onClick={handleRestart}
-          className="mt-8 px-4 py-2 text-zinc-500 hover:text-zinc-300 transition-colors"
+          className={`mt-8 px-4 py-2 transition-colors ${isDark ? 'text-zinc-500 hover:text-zinc-300' : 'text-gray-500 hover:text-gray-700'}`}
         >
           Restart
         </button>
