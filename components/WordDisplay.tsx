@@ -19,7 +19,7 @@ const WordRow = React.memo(function WordRow({ charStates, isDark = true }: WordR
             ${charState.status === 'idle' ? (isDark ? 'text-zinc-500' : 'text-gray-400') : ''}
             ${charState.status === 'correct' ? 'text-green-500' : ''}
             ${charState.status === 'incorrect' ? 'text-red-500 bg-red-100 dark:bg-red-900/20' : ''}
-            ${charState.status === 'current' ? 'text-gray-900 dark:text-white border-l-2 border-amber-500' : ''}
+            ${charState.status === 'current' ? 'text-zinc-900 dark:text-white bg-amber-200/50 dark:bg-amber-500/20 border-l-2 border-amber-500' : ''}
           `}
         >
           {charState.char}
