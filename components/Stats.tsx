@@ -15,19 +15,25 @@ const Stats = React.memo(function Stats({ stats, mode, elapsed, bestWpm, isDark 
   const timeRemaining = Math.max(0, Math.floor(mode - elapsed));
 
   return (
-    <div className="flex flex-col items-center mb-6 font-['JetBrains_Mono',_monospace]">
-      <div className="flex gap-12 text-3xl font-bold">
-        <div className={isDark ? 'text-zinc-100' : 'text-gray-900'}>
-          <span className={`${isDark ? 'text-zinc-500' : 'text-gray-500'} text-lg mr-1`}>WPM</span>
-          {stats.wpm}
+    <div className="flex flex-col items-center mb-10 font-['JetBrains_Mono',_monospace] animate-in fade-in slide-in-from-top-4 duration-700">
+      <div className="flex gap-16">
+        <div className="flex flex-col items-center">
+          <span className={`text-xs uppercase tracking-widest font-bold mb-1 ${isDark ? 'text-zinc-600' : 'text-gray-400'}`}>WPM</span>
+          <div className={`text-5xl font-black ${isDark ? 'text-zinc-100' : 'text-gray-900'}`}>
+            {stats.wpm}
+          </div>
         </div>
-        <div className={isDark ? 'text-zinc-100' : 'text-gray-900'}>
-          <span className={`${isDark ? 'text-zinc-500' : 'text-gray-500'} text-lg mr-1`}>ACC</span>
-          {stats.accuracy}%
+        <div className="flex flex-col items-center">
+          <span className={`text-xs uppercase tracking-widest font-bold mb-1 ${isDark ? 'text-zinc-600' : 'text-gray-400'}`}>Accuracy</span>
+          <div className={`text-5xl font-black ${isDark ? 'text-zinc-100' : 'text-gray-900'}`}>
+            {stats.accuracy}<span className="text-2xl ml-0.5 opacity-50">%</span>
+          </div>
         </div>
-        <div className={isDark ? 'text-zinc-100' : 'text-gray-900'}>
-          <span className={`${isDark ? 'text-zinc-500' : 'text-gray-500'} text-lg mr-1`}>TIME</span>
-          {timeRemaining}s
+        <div className="flex flex-col items-center">
+          <span className={`text-xs uppercase tracking-widest font-bold mb-1 ${isDark ? 'text-zinc-600' : 'text-gray-400'}`}>Time Left</span>
+          <div className={`text-5xl font-black ${timeRemaining <= 5 ? 'text-red-500 animate-pulse' : isDark ? 'text-zinc-100' : 'text-gray-900'}`}>
+            {timeRemaining}<span className="text-2xl ml-0.5 opacity-50">s</span>
+          </div>
         </div>
       </div>
       {bestWpm !== null && (

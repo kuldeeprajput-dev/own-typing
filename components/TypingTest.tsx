@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useTypingEngine } from '@/hooks/useTypingEngine';
-import { TestMode } from '@/types';
+import { TestMode, TestOptions } from '@/types';
 import ModeSelector from './ModeSelector';
 import Stats from './Stats';
 import WordDisplay from './WordDisplay';
@@ -23,11 +23,13 @@ export default function TypingTest() {
     words,
     status,
     mode,
+    options,
     stats,
     elapsed,
     handleInput,
     restart,
     setMode,
+    setOptions,
     inputRef,
   } = useTypingEngine(30);
 
@@ -63,6 +65,13 @@ export default function TypingTest() {
     [setMode]
   );
 
+  const handleOptionsChange = useCallback(
+    (newOptions: Partial<TestOptions>) => {
+      setOptions(newOptions);
+    },
+    [setOptions]
+  );
+
   const handleRestart = useCallback(() => {
     restart();
   }, [restart]);
@@ -88,7 +97,13 @@ export default function TypingTest() {
       <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
 
       <div className={`transition-all duration-300 ${status === 'running' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        <ModeSelector mode={mode} onModeChange={handleModeChange} isDark={isDark} />
+        <ModeSelector 
+          mode={mode} 
+          options={options}
+          onModeChange={handleModeChange} 
+          onOptionsChange={handleOptionsChange}
+          isDark={isDark} 
+        />
       </div>
 
       <Stats stats={stats} mode={mode} elapsed={elapsed} bestWpm={null} isDark={isDark} />
@@ -96,8 +111,11 @@ export default function TypingTest() {
       {status !== 'finished' && (
         <div
           ref={containerRef}
-          className="relative w-full max-w-7xl cursor-text text-center mt-8"
-          style={{ height: '6.5rem', overflow: 'hidden' }}
+          className="relative w-full max-w-7xl cursor-text text-center mt-8 px-4"
+          style={{ 
+            height: '6.6rem', 
+            overflow: 'hidden',
+          }}
         >
           <WordDisplay charStates={charStates} words={words} isDark={isDark} />
           {!isFocused && (

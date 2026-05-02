@@ -7,6 +7,12 @@ export interface CharState {
 
 export type TestMode = 15 | 30 | 60;
 
+export interface TestOptions {
+  punctuation: boolean;
+  numbers: boolean;
+  capitals: boolean;
+}
+
 export type TestStatus = 'idle' | 'running' | 'finished';
 
 export interface TypingStats {

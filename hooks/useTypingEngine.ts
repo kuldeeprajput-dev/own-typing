@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { CharState, TestMode, TestStatus, TypingStats } from '@/types';
+import { CharState, TestMode, TestStatus, TypingStats, TestOptions } from '@/types';
 import { generateWords } from '@/utils/words';
 import { computeStats } from '@/utils/typing';
 
@@ -16,9 +16,14 @@ function initializeCharStates(words: string[]): CharState[][] {
 }
 
 export function useTypingEngine(initialMode: TestMode = 30) {
-  const [words, setWords] = useState<string[]>(() => generateWords(WORDS_COUNT));
+  const [options, setOptionsState] = useState<TestOptions>({
+    punctuation: false,
+    numbers: false,
+    capitals: false,
+  });
+  const [words, setWords] = useState<string[]>(() => generateWords(WORDS_COUNT, { punctuation: false, numbers: false, capitals: false }));
   const [charStates, setCharStates] = useState<CharState[][]>(() =>
-    initializeCharStates(generateWords(WORDS_COUNT))
+    initializeCharStates(generateWords(WORDS_COUNT, { punctuation: false, numbers: false, capitals: false }))
   );
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
@@ -79,10 +84,10 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     }, 100);
   }, [mode, clearTimer]);
 
-  const restart = useCallback(() => {
+  const restart = useCallback((currentOptions = options) => {
     clearTimer();
     statusRef.current = 'idle';
-    const newWords = generateWords(WORDS_COUNT);
+    const newWords = generateWords(WORDS_COUNT, currentOptions);
     const newCharStates = initializeCharStates(newWords);
     
     totalKeystrokesRef.current = 0;
@@ -105,11 +110,19 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     if (inputRef.current) {
       inputRef.current.value = '';
     }
-  }, [clearTimer]);
+  }, [clearTimer, options]);
 
   const setMode = useCallback((newMode: TestMode) => {
     setModeState(newMode);
     restart();
+  }, [restart]);
+
+  const setOptions = useCallback((newOptions: Partial<TestOptions>) => {
+    setOptionsState(prev => {
+      const next = { ...prev, ...newOptions };
+      restart(next);
+      return next;
+    });
   }, [restart]);
 
   const getElapsed = useCallback(() => {
@@ -128,9 +141,6 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     const currentWord = words[currentWordIndex];
     if (!currentWord) return;
 
-    // ... rest of the logic remains same but uses currentElapsed ...
-    // Note: I will provide the full content here to ensure it's correct
-    
     if (value.endsWith(' ')) {
       const typedWord = value.trim();
       if (typedWord.length === 0) {
@@ -230,23 +240,24 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     return () => clearTimer();
   }, [clearTimer]);
 
-  // Sync stats when elapsed changes
   useEffect(() => {
     if (status === 'running') {
       updateStats(elapsed, charStates);
     }
-  }, [elapsed, status, updateStats]); // Removed charStates from dependency to avoid infinite loop, using current charStates in updateStats
+  }, [elapsed, status, updateStats]);
 
   return {
     charStates,
     words,
     status,
     mode,
+    options,
     stats,
     elapsed,
     handleInput,
     restart,
     setMode,
+    setOptions,
     inputRef,
   };
 }
