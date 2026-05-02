@@ -22,10 +22,12 @@ const ModeSelector = React.memo(function ModeSelector({
   return (
     <div className="flex flex-col items-center gap-4 mb-10 group">
       <div className={`
-        flex items-center gap-6 px-6 py-3 rounded-2xl shadow-xl transition-all duration-500
-        ${isDark ? 'bg-zinc-900/40 border border-zinc-800/50 backdrop-blur-md' : 'bg-white/50 border border-gray-200/50 backdrop-blur-md'}
+        flex items-center gap-6 px-6 py-3 rounded-2xl shadow-xl transition-all duration-700
+        ${isDark 
+          ? 'bg-zinc-900/40 border border-zinc-800/50 backdrop-blur-md shadow-black/20' 
+          : 'bg-white border border-zinc-200 shadow-zinc-200/50'}
       `}>
-        <div className="flex items-center gap-1 border-r border-zinc-800/50 pr-6">
+        <div className={`flex items-center gap-1 border-r pr-6 ${isDark ? 'border-zinc-800/50' : 'border-zinc-200'}`}>
           <div className="flex gap-1">
             {modes.map((m) => (
               <button

@@ -91,7 +91,7 @@ export default function TypingTest() {
 
   return (
     <div 
-      className={`flex flex-col items-center justify-center min-h-screen p-4 transition-colors duration-300 ${isDark ? 'bg-[#0f0f0f] text-zinc-100' : 'bg-gray-100 text-gray-900'}`}
+      className={`flex flex-col items-center justify-center min-h-screen p-4 transition-colors duration-500 ${isDark ? 'bg-[#0f0f0f] text-zinc-100' : 'bg-[#fafafa] text-zinc-900'}`}
       onClick={() => inputRef.current?.focus()}
     >
       <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
