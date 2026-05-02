@@ -22,14 +22,23 @@ export function useTypingEngine(initialMode: TestMode = 30) {
   );
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
-  const statusRef = useRef<TestStatus>('idle');
   const [status, setStatus] = useState<TestStatus>('idle');
   const [mode, setModeState] = useState<TestMode>(initialMode);
   const [elapsed, setElapsed] = useState(0);
-  const [stats, setStats] = useState<TypingStats>(() =>
-    computeStats(initializeCharStates(generateWords(WORDS_COUNT)), 0)
-  );
+  
+  // Stats tracking
+  const totalKeystrokesRef = useRef(0);
+  const correctKeystrokesRef = useRef(0);
+  const [stats, setStats] = useState<TypingStats>(() => ({
+    wpm: 0,
+    rawWpm: 0,
+    accuracy: 100,
+    elapsed: 0,
+    correctChars: 0,
+    totalTyped: 0,
+  }));
 
+  const statusRef = useRef<TestStatus>('idle');
   const startTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -40,6 +49,16 @@ export function useTypingEngine(initialMode: TestMode = 30) {
       intervalRef.current = null;
     }
     startTimeRef.current = null;
+  }, []);
+
+  const updateStats = useCallback((currentElapsed: number, currentChars: CharState[][]) => {
+    const newStats = computeStats(
+      currentChars,
+      currentElapsed,
+      totalKeystrokesRef.current,
+      correctKeystrokesRef.current
+    );
+    setStats(newStats);
   }, []);
 
   const startTimer = useCallback(() => {
@@ -64,13 +83,25 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     clearTimer();
     statusRef.current = 'idle';
     const newWords = generateWords(WORDS_COUNT);
+    const newCharStates = initializeCharStates(newWords);
+    
+    totalKeystrokesRef.current = 0;
+    correctKeystrokesRef.current = 0;
+    
     setWords(newWords);
-    setCharStates(initializeCharStates(newWords));
+    setCharStates(newCharStates);
     setCurrentWordIndex(0);
     setCurrentCharIndex(0);
     setStatus('idle');
     setElapsed(0);
-    setStats(computeStats(initializeCharStates(newWords), 0));
+    setStats({
+      wpm: 0,
+      rawWpm: 0,
+      accuracy: 100,
+      elapsed: 0,
+      correctChars: 0,
+      totalTyped: 0,
+    });
     if (inputRef.current) {
       inputRef.current.value = '';
     }
@@ -81,6 +112,11 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     restart();
   }, [restart]);
 
+  const getElapsed = useCallback(() => {
+    if (startTimeRef.current === null) return 0;
+    return (performance.now() - startTimeRef.current) / 1000;
+  }, []);
+
   const handleInput = useCallback((value: string) => {
     if (statusRef.current === 'finished') return;
 
@@ -88,167 +124,118 @@ export function useTypingEngine(initialMode: TestMode = 30) {
       startTimer();
     }
 
-    const prevValueLength = currentCharIndex + (value.endsWith(' ') ? 1 : 0);
-    const newValueLength = value.length;
+    const currentElapsed = getElapsed();
+    const currentWord = words[currentWordIndex];
+    if (!currentWord) return;
 
-    if (newValueLength < prevValueLength) {
-      if (value.endsWith(' ')) {
-        if (currentWordIndex > 0) {
-          setCurrentWordIndex((prev) => prev - 1);
-          setCurrentCharIndex(words[currentWordIndex - 1]?.length || 0);
-          
-          setCharStates((prev) => {
-            const newCharStates = [...prev];
-            const currentWord = newCharStates[currentWordIndex];
-            if (currentWord) {
-              newCharStates[currentWordIndex] = currentWord.map((char) => ({
-                ...char,
-                status: 'idle',
-              }));
-            }
-            setStats(computeStats(newCharStates, elapsed));
-            return newCharStates;
-          });
-        }
-      } else {
-        setCurrentCharIndex((prev) => Math.max(0, prev - 1));
-        
-        setCharStates((prev) => {
-          const newCharStates = [...prev];
-          if (newCharStates[currentWordIndex]) {
-            newCharStates[currentWordIndex] = [...prev[currentWordIndex]];
-            const charIdx = currentCharIndex - 1;
-            if (charIdx >= 0 && newCharStates[currentWordIndex][charIdx]) {
-              newCharStates[currentWordIndex][charIdx] = {
-                ...prev[currentWordIndex][charIdx],
-                status: 'current',
-              };
-            }
-            const nextCharIdx = currentCharIndex;
-            if (nextCharIdx < newCharStates[currentWordIndex].length) {
-              newCharStates[currentWordIndex][nextCharIdx] = {
-                ...prev[currentWordIndex][nextCharIdx],
-                status: 'idle',
-              };
-            }
-          }
-          setStats(computeStats(newCharStates, elapsed));
-          return newCharStates;
-        });
-      }
-      
-      if (inputRef.current) {
-        inputRef.current.value = value;
-      }
-      return;
-    }
-
+    // ... rest of the logic remains same but uses currentElapsed ...
+    // Note: I will provide the full content here to ensure it's correct
+    
     if (value.endsWith(' ')) {
-      if (value.trim().length === 0 || currentCharIndex === 0) {
-        setCharStates((prev) => {
-          const newCharStates = [...prev];
-          if (newCharStates[currentWordIndex] && newCharStates[currentWordIndex].length > 0) {
-            newCharStates[currentWordIndex] = [...prev[currentWordIndex]];
-            const expectedChar = words[currentWordIndex]?.[0];
-            newCharStates[currentWordIndex][0] = {
-              char: expectedChar || ' ',
-              status: 'incorrect',
-            };
-          }
-          return newCharStates;
-        });
-        
-        if (inputRef.current) {
-          inputRef.current.value = '';
-        }
-        
-        setCharStates((prev) => {
-          setStats(computeStats(prev, elapsed));
-          return prev;
-        });
+      const typedWord = value.trim();
+      if (typedWord.length === 0) {
+        if (inputRef.current) inputRef.current.value = '';
         return;
       }
 
-      setCurrentWordIndex((prev) => {
-        const nextWordIndex = prev + 1;
-        setCurrentCharIndex(0);
+      totalKeystrokesRef.current += 1;
+      correctKeystrokesRef.current += 1;
 
-        setCharStates((prevCharStates) => {
-          const newCharStates = [...prevCharStates];
-          if (nextWordIndex < newCharStates.length) {
-            newCharStates[nextWordIndex] = newCharStates[nextWordIndex].map((char, idx) => ({
-              ...char,
-              status: idx === 0 ? 'current' : 'idle',
-            }));
-          }
-          return newCharStates;
-        });
+      const nextWordIdx = currentWordIndex + 1;
+      
+      if (nextWordIdx >= words.length) {
+        clearTimer();
+        statusRef.current = 'finished';
+        setStatus('finished');
+        return;
+      }
 
-        return nextWordIndex;
+      setCurrentWordIndex(nextWordIdx);
+      setCurrentCharIndex(0);
+      
+      setCharStates(prev => {
+        const next = [...prev];
+        next[currentWordIndex] = next[currentWordIndex].map(c => 
+          c.status === 'current' ? { ...c, status: 'idle' } : c
+        );
+        if (next[nextWordIdx]) {
+          next[nextWordIdx] = next[nextWordIdx].map((c, i) => 
+            i === 0 ? { ...c, status: 'current' } : c
+          );
+        }
+        updateStats(currentElapsed, next);
+        return next;
       });
 
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
-    } else {
-      const typedChar = value[currentCharIndex];
-      const expectedChar = words[currentWordIndex]?.[currentCharIndex];
-
-      if (typedChar !== undefined) {
-        const isCorrect = typedChar === expectedChar;
-
-        setCharStates((prev) => {
-          const newCharStates = [...prev];
-          if (!newCharStates[currentWordIndex]) {
-            newCharStates[currentWordIndex] = [];
-          }
-          newCharStates[currentWordIndex] = [...(prev[currentWordIndex] || [])];
-          
-          const charToShow = expectedChar || typedChar;
-          
-          if (currentCharIndex < (words[currentWordIndex]?.length || 0)) {
-            newCharStates[currentWordIndex][currentCharIndex] = {
-              char: charToShow,
-              status: isCorrect ? 'correct' : 'incorrect',
-            };
-          } else {
-            newCharStates[currentWordIndex].push({
-              char: typedChar,
-              status: 'incorrect',
-            });
-          }
-          return newCharStates;
-        });
-
-        const nextCharIndex = currentCharIndex + 1;
-
-        if (nextCharIndex < (words[currentWordIndex]?.length || 0)) {
-          setCharStates((prev) => {
-            const newCharStates = [...prev];
-            newCharStates[currentWordIndex] = [...(prev[currentWordIndex] || [])];
-            newCharStates[currentWordIndex][nextCharIndex] = {
-              char: words[currentWordIndex][nextCharIndex],
-              status: 'current',
-            };
-            return newCharStates;
-          });
-        }
-
-setCurrentCharIndex(nextCharIndex);
-      }
+      if (inputRef.current) inputRef.current.value = '';
+      return;
     }
 
-    setCharStates((prev) => {
-      setStats(computeStats(prev, elapsed));
-      return prev;
-    });
-  }, [startTimer, words, currentWordIndex, elapsed]);
+    if (value.length < currentCharIndex) {
+      setCurrentCharIndex(value.length);
+      setCharStates(prev => {
+        const next = [...prev];
+        const wordChars = [...next[currentWordIndex]];
+        if (wordChars[value.length]) {
+          wordChars[value.length] = { ...wordChars[value.length], status: 'current' };
+        }
+        for (let i = value.length + 1; i < wordChars.length; i++) {
+          wordChars[i] = { ...wordChars[i], status: 'idle' };
+        }
+        next[currentWordIndex] = wordChars.slice(0, Math.max(words[currentWordIndex].length, value.length));
+        updateStats(currentElapsed, next);
+        return next;
+      });
+      return;
+    }
+
+    const charTyped = value[value.length - 1];
+    const expectedChar = currentWord[currentCharIndex];
+    
+    if (charTyped) {
+      totalKeystrokesRef.current += 1;
+      if (charTyped === expectedChar) {
+        correctKeystrokesRef.current += 1;
+      }
+
+      setCharStates(prev => {
+        const next = [...prev];
+        const wordChars = [...next[currentWordIndex]];
+        
+        if (currentCharIndex < currentWord.length) {
+          wordChars[currentCharIndex] = {
+            char: expectedChar,
+            status: charTyped === expectedChar ? 'correct' : 'incorrect'
+          };
+          if (currentCharIndex + 1 < currentWord.length) {
+            wordChars[currentCharIndex + 1] = {
+              ...wordChars[currentCharIndex + 1],
+              status: 'current'
+            };
+          }
+        } else {
+          wordChars.push({ char: charTyped, status: 'incorrect' });
+        }
+        
+        next[currentWordIndex] = wordChars;
+        updateStats(currentElapsed, next);
+        return next;
+      });
+      
+      setCurrentCharIndex(value.length);
+    }
+  }, [words, currentWordIndex, currentCharIndex, startTimer, getElapsed, updateStats]);
 
   useEffect(() => {
-    return () => {
-      clearTimer();
-    };
+    return () => clearTimer();
   }, [clearTimer]);
+
+  // Sync stats when elapsed changes
+  useEffect(() => {
+    if (status === 'running') {
+      updateStats(elapsed, charStates);
+    }
+  }, [elapsed, status, updateStats]); // Removed charStates from dependency to avoid infinite loop, using current charStates in updateStats
 
   return {
     charStates,

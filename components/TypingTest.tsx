@@ -87,9 +87,9 @@ export default function TypingTest() {
     >
       <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
 
-      {(status === 'idle' || status === 'finished') && (
+      <div className={`transition-all duration-300 ${status === 'running' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         <ModeSelector mode={mode} onModeChange={handleModeChange} isDark={isDark} />
-      )}
+      </div>
 
       <Stats stats={stats} mode={mode} elapsed={elapsed} bestWpm={null} isDark={isDark} />
 
@@ -112,11 +112,19 @@ export default function TypingTest() {
 
       {status === 'finished' && (
         <div className="flex flex-col items-center mt-8">
-          <div className="text-4xl font-bold mb-2">{stats.wpm} WPM</div>
-          <div className={`mb-4 ${isDark ? 'text-zinc-400' : 'text-gray-600'}`}>Accuracy: {stats.accuracy}%</div>
+          <div className="flex gap-12 mb-8">
+            <div className="text-center">
+              <div className={`text-sm ${isDark ? 'text-zinc-500' : 'text-gray-500'} uppercase mb-1`}>WPM</div>
+              <div className="text-6xl font-bold text-amber-500">{stats.wpm}</div>
+            </div>
+            <div className="text-center">
+              <div className={`text-sm ${isDark ? 'text-zinc-500' : 'text-gray-500'} uppercase mb-1`}>Accuracy</div>
+              <div className="text-6xl font-bold">{stats.accuracy}%</div>
+            </div>
+          </div>
           <button
             onClick={handleTryAgain}
-            className="px-6 py-2 bg-amber-500 text-black font-bold rounded-lg hover:bg-amber-400 transition-colors"
+            className="px-8 py-3 bg-amber-500 text-black font-bold rounded-lg hover:bg-amber-400 transition-all transform hover:scale-105"
           >
             Try Again
           </button>

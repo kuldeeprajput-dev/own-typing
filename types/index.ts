@@ -11,6 +11,7 @@ export type TestStatus = 'idle' | 'running' | 'finished';
 
 export interface TypingStats {
   wpm: number;
+  rawWpm: number;
   accuracy: number;
   elapsed: number;
   correctChars: number;
