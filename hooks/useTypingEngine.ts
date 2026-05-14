@@ -21,15 +21,23 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     numbers: false,
     capitals: false,
   });
-  const [words, setWords] = useState<string[]>(() => generateWords(WORDS_COUNT, { punctuation: false, numbers: false, capitals: false }));
-  const [charStates, setCharStates] = useState<CharState[][]>(() =>
-    initializeCharStates(generateWords(WORDS_COUNT, { punctuation: false, numbers: false, capitals: false }))
-  );
+
+  const [initialData] = useState(() => {
+    const w = generateWords(WORDS_COUNT, { punctuation: false, numbers: false, capitals: false });
+    return {
+      words: w,
+      charStates: initializeCharStates(w)
+    };
+  });
+
+  const [words, setWords] = useState<string[]>(initialData.words);
+  const [charStates, setCharStates] = useState<CharState[][]>(initialData.charStates);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [status, setStatus] = useState<TestStatus>('idle');
   const [mode, setModeState] = useState<TestMode>(initialMode);
   const [elapsed, setElapsed] = useState(0);
+  const [inputValue, setInputValue] = useState('');
   
   // Stats tracking
   const totalKeystrokesRef = useRef(0);
@@ -107,9 +115,7 @@ export function useTypingEngine(initialMode: TestMode = 30) {
       correctChars: 0,
       totalTyped: 0,
     });
-    if (inputRef.current) {
-      inputRef.current.value = '';
-    }
+    setInputValue('');
   }, [clearTimer, options]);
 
   const setMode = useCallback((newMode: TestMode) => {
@@ -144,7 +150,7 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     if (value.endsWith(' ')) {
       const typedWord = value.trim();
       if (typedWord.length === 0) {
-        if (inputRef.current) inputRef.current.value = '';
+        setInputValue('');
         return;
       }
 
@@ -177,9 +183,11 @@ export function useTypingEngine(initialMode: TestMode = 30) {
         return next;
       });
 
-      if (inputRef.current) inputRef.current.value = '';
+      setInputValue('');
       return;
     }
+
+    setInputValue(value);
 
     if (value.length < currentCharIndex) {
       setCurrentCharIndex(value.length);
@@ -234,7 +242,7 @@ export function useTypingEngine(initialMode: TestMode = 30) {
       
       setCurrentCharIndex(value.length);
     }
-  }, [words, currentWordIndex, currentCharIndex, startTimer, getElapsed, updateStats]);
+  }, [words, currentWordIndex, currentCharIndex, startTimer, getElapsed, updateStats, clearTimer]);
 
   useEffect(() => {
     return () => clearTimer();
@@ -244,7 +252,7 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     if (status === 'running') {
       updateStats(elapsed, charStates);
     }
-  }, [elapsed, status, updateStats]);
+  }, [elapsed, status, updateStats, charStates]);
 
   return {
     charStates,
@@ -254,6 +262,7 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     options,
     stats,
     elapsed,
+    inputValue,
     handleInput,
     restart,
     setMode,

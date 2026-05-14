@@ -39,7 +39,7 @@ interface WordDisplayProps {
 
 const WordDisplay = React.memo(function WordDisplay({ charStates, words, isDark = true }: WordDisplayProps) {
   return (
-    <div className="flex flex-wrap leading-relaxed text-xl font-['JetBrains_Mono',_monospace]">
+    <div className="flex flex-wrap leading-relaxed text-lg sm:text-xl md:text-2xl font-['JetBrains_Mono',_monospace]">
       {words.map((word, index) => (
         <WordRow
           key={index}

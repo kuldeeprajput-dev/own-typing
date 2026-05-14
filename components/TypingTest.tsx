@@ -26,6 +26,7 @@ export default function TypingTest() {
     options,
     stats,
     elapsed,
+    inputValue,
     handleInput,
     restart,
     setMode,
@@ -111,11 +112,7 @@ export default function TypingTest() {
       {status !== 'finished' && (
         <div
           ref={containerRef}
-          className="relative w-full max-w-7xl cursor-text text-center mt-8 px-4"
-          style={{ 
-            height: '6.6rem', 
-            overflow: 'hidden',
-          }}
+          className="relative w-full max-w-7xl cursor-text text-center mt-8 px-4 overflow-hidden h-[6rem] sm:h-[6.6rem] md:h-[8rem]"
         >
           <WordDisplay charStates={charStates} words={words} isDark={isDark} />
           {!isFocused && (
@@ -130,14 +127,14 @@ export default function TypingTest() {
 
       {status === 'finished' && (
         <div className="flex flex-col items-center mt-8">
-          <div className="flex gap-12 mb-8">
+          <div className="flex gap-8 sm:gap-12 mb-8">
             <div className="text-center">
-              <div className={`text-sm ${isDark ? 'text-zinc-500' : 'text-gray-500'} uppercase mb-1`}>WPM</div>
-              <div className="text-6xl font-bold text-amber-500">{stats.wpm}</div>
+              <div className={`text-xs sm:text-sm ${isDark ? 'text-zinc-500' : 'text-gray-500'} uppercase mb-1`}>WPM</div>
+              <div className="text-5xl sm:text-6xl font-bold text-amber-500">{stats.wpm}</div>
             </div>
             <div className="text-center">
-              <div className={`text-sm ${isDark ? 'text-zinc-500' : 'text-gray-500'} uppercase mb-1`}>Accuracy</div>
-              <div className="text-6xl font-bold">{stats.accuracy}%</div>
+              <div className={`text-xs sm:text-sm ${isDark ? 'text-zinc-500' : 'text-gray-500'} uppercase mb-1`}>Accuracy</div>
+              <div className="text-5xl sm:text-6xl font-bold">{stats.accuracy}%</div>
             </div>
           </div>
           <button
@@ -152,11 +149,14 @@ export default function TypingTest() {
       <input
         ref={inputRef}
         type="text"
-        className="opacity-0 w-0 h-0"
+        value={inputValue}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 w-1 h-1 pointer-events-none"
         onChange={onInputChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
         autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="none"
         spellCheck={false}
       />
 
