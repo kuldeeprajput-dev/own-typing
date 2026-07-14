@@ -215,10 +215,10 @@ const ResultsDashboard = React.memo(function ResultsDashboard({
     ? `M ${rawPoints[0].x} ${rawPoints[0].y} ` + rawPoints.slice(1).map(p => `L ${p.x} ${p.y}`).join(' ')
     : '';
 
-  const errorCount = stats.totalTyped - stats.correctChars;
+  const errorCount = stats.errors;
 
   return (
-    <div className="w-full max-w-[1000px] mt-2 p-2 sm:p-4 font-['JetBrains_Mono',_monospace]">
+    <div className="mx-auto w-full max-w-[1000px] p-2 font-['JetBrains_Mono',_monospace] sm:p-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* Left Column: WPM and Accuracy Cards */}
         <div className="flex flex-col gap-6 md:col-span-1">
@@ -439,7 +439,7 @@ const ResultsDashboard = React.memo(function ResultsDashboard({
         {[
           { label: 'test type', value: `time ${mode}` },
           { label: 'raw wpm', value: stats.rawWpm },
-          { label: 'characters', value: `${stats.correctChars}/${stats.totalTyped}` },
+          { label: 'characters', value: `${stats.correctKeystrokes}/${stats.totalTyped}` },
           { label: 'errors', value: errorCount, isAlert: errorCount > 0 }
         ].map((chip, idx) => (
           <div key={idx} className={`p-4 rounded-xl border ${style.bg} ${style.border} ${style.shadow} flex flex-col justify-center items-center text-center`}>
@@ -464,7 +464,7 @@ const ResultsDashboard = React.memo(function ResultsDashboard({
           <div className="flex flex-col gap-0.5 text-xs">
             <span className={`font-bold ${isDark ? 'text-zinc-450' : 'text-zinc-650'}`}>english easy</span>
             <span className={`italic ${isDark ? 'text-zinc-550' : 'text-zinc-400'} max-w-[280px] sm:max-w-[450px] truncate`}>
-              "{words.slice(0, 8).join(' ')}..."
+              &ldquo;{words.slice(0, 8).join(' ')}&hellip;&rdquo;
             </span>
           </div>
         </div>
