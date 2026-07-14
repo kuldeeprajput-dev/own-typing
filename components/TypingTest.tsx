@@ -272,7 +272,7 @@ export default function TypingTest() {
 
   return (
     <div 
-      className={`flex flex-col items-center justify-center h-screen overflow-hidden p-4 transition-all duration-500 ease-in-out ${styles.bg} ${styles.text}`}
+      className={`flex flex-col items-center h-screen overflow-hidden p-4 transition-colors duration-500 ease-in-out ${styles.bg} ${styles.text} ${status === 'finished' ? 'justify-start pt-[5vh]' : 'justify-center'}`}
       onClick={() => inputRef.current?.focus()}
     >
       <KeyboardSettingsModal 

@@ -218,7 +218,7 @@ const ResultsDashboard = React.memo(function ResultsDashboard({
   const errorCount = stats.totalTyped - stats.correctChars;
 
   return (
-    <div className="w-full max-w-[1000px] mt-2 p-2 sm:p-4 animate-in fade-in zoom-in-95 duration-500 font-['JetBrains_Mono',_monospace]">
+    <div className="w-full max-w-[1000px] mt-2 p-2 sm:p-4 font-['JetBrains_Mono',_monospace]">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* Left Column: WPM and Accuracy Cards */}
         <div className="flex flex-col gap-6 md:col-span-1">

@@ -46,7 +46,7 @@ const Stats = React.memo(function Stats({ stats, mode, elapsed, bestWpm, isDark 
   const current = isDark ? themeStyles.dark : themeStyles.light;
 
   return (
-    <div className="flex flex-col items-center mb-10 font-['JetBrains_Mono',_monospace] animate-in fade-in slide-in-from-top-4 duration-700 w-full transition-all duration-500 ease-in-out">
+    <div className="flex flex-col items-center mb-10 font-['JetBrains_Mono',_monospace] w-full transition-all duration-500 ease-in-out">
       <div className="flex flex-wrap justify-center gap-8 sm:gap-16">
         <div className="flex flex-col items-center">
           <span className={`text-xs uppercase tracking-widest font-bold mb-1 transition-all duration-500 ease-in-out ${current.label}`}>WPM</span>
