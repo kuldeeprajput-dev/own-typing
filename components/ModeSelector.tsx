@@ -11,6 +11,9 @@ interface ModeSelectorProps {
   onModeChange: (mode: TestMode) => void;
   onOptionsChange: (options: Partial<TestOptions>) => void;
   onKeyboardSettingsClick: () => void;
+  onBrandClick: () => void;
+  brandAccentText: string;
+  brandText: string;
   isDark?: boolean;
 }
 
@@ -267,6 +270,52 @@ const VolumeXIcon = () => (
   </svg>
 );
 
+interface OwnTypeBrandProps {
+  accentText: string;
+  text: string;
+  onClick: () => void;
+}
+
+const OwnTypeBrand = ({ accentText, text, onClick }: OwnTypeBrandProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="flex items-center gap-2.5 rounded-xl px-1 py-1 transition-transform duration-200 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current"
+    aria-label="Restart OwnType typing test"
+    title="OwnType"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      className="h-8 w-8 shrink-0 sm:h-9 sm:w-9"
+      aria-hidden="true"
+    >
+      <rect
+        x="3"
+        y="3"
+        width="18"
+        height="18"
+        rx="5.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="4"
+        className={accentText}
+      />
+      <path
+        d="M15.75 7v10"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="square"
+        className={text}
+      />
+    </svg>
+
+    <span className="text-xl font-black lowercase leading-none tracking-[-0.08em] sm:text-2xl">
+      <span className={accentText}>own</span>
+      <span className={text}>type</span>
+    </span>
+  </button>
+);
+
 const modes: TestMode[] = [15, 30, 60];
 const themesList: KeyboardTheme[] = ['Classic', 'Mint', 'Royal', 'Dolch', 'Sand', 'Scarlet'];
 
@@ -276,6 +325,9 @@ const ModeSelector = React.memo(function ModeSelector({
   onModeChange,
   onOptionsChange,
   onKeyboardSettingsClick,
+  onBrandClick,
+  brandAccentText,
+  brandText,
   isDark = true,
 }: ModeSelectorProps) {
   const { settings, updateSettings } = useKeyboardSettings();
@@ -298,6 +350,14 @@ const ModeSelector = React.memo(function ModeSelector({
         flex flex-col sm:flex-row items-center gap-4 sm:gap-6 px-4 sm:px-6 py-4 sm:py-3 rounded-2xl shadow-xl transition-all duration-500 ease-in-out border
         ${current.card}
       `}>
+        <div className={`flex w-full justify-center border-b pb-4 transition-all duration-500 ease-in-out sm:w-auto sm:border-b-0 sm:border-r sm:pb-0 sm:pr-6 ${current.borderClass}`}>
+          <OwnTypeBrand
+            accentText={brandAccentText}
+            text={brandText}
+            onClick={onBrandClick}
+          />
+        </div>
+
         <div className={`flex flex-wrap justify-center items-center gap-1 border-b sm:border-b-0 sm:border-r pb-4 sm:pb-0 pr-0 sm:pr-6 transition-all duration-500 ease-in-out ${current.borderClass}`}>
           <div className="flex gap-1">
             {modes.map((m) => (

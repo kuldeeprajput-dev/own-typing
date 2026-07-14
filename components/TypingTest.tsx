@@ -275,7 +275,6 @@ export default function TypingTest() {
       className={`flex flex-col items-center justify-center h-screen overflow-hidden p-4 transition-all duration-500 ease-in-out ${styles.bg} ${styles.text}`}
       onClick={() => inputRef.current?.focus()}
     >
-      
       <KeyboardSettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
@@ -289,6 +288,9 @@ export default function TypingTest() {
           onModeChange={handleModeChange} 
           onOptionsChange={handleOptionsChange}
           onKeyboardSettingsClick={() => setIsSettingsOpen(true)}
+          onBrandClick={handleRestart}
+          brandAccentText={styles.accentText}
+          brandText={styles.text}
           isDark={isDark} 
         />
       </div>
