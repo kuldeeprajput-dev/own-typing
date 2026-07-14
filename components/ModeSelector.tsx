@@ -347,10 +347,10 @@ const ModeSelector = React.memo(function ModeSelector({
   return (
     <div className="flex flex-col items-center gap-4 mb-6 sm:mb-10 group">
       <div className={`
-        flex flex-col sm:flex-row items-center gap-2.5 sm:gap-6 px-3 py-3 sm:px-6 sm:py-3 rounded-2xl shadow-xl transition-all duration-500 ease-in-out border
+        flex flex-col md:flex-row items-center gap-2.5 md:gap-6 px-3 py-3 md:px-6 md:py-3 rounded-2xl shadow-xl transition-all duration-500 ease-in-out border
         ${current.card}
       `}>
-        <div className={`flex w-full justify-center border-b pb-2 transition-all duration-500 ease-in-out sm:w-auto sm:border-b-0 sm:border-r sm:pb-0 sm:pr-6 ${current.borderClass}`}>
+        <div className={`flex w-full justify-center border-b pb-2 transition-all duration-500 ease-in-out md:w-auto md:border-b-0 md:border-r md:pb-0 md:pr-6 ${current.borderClass}`}>
           <OwnTypeBrand
             accentText={brandAccentText}
             text={brandText}
@@ -358,7 +358,7 @@ const ModeSelector = React.memo(function ModeSelector({
           />
         </div>
 
-        <div className={`flex flex-wrap justify-center items-center gap-1 border-b sm:border-b-0 sm:border-r pb-2 sm:pb-0 pr-0 sm:pr-6 transition-all duration-500 ease-in-out ${current.borderClass}`}>
+        <div className={`flex flex-wrap justify-center items-center gap-1 border-b md:border-b-0 md:border-r pb-2 md:pb-0 pr-0 md:pr-6 transition-all duration-500 ease-in-out ${current.borderClass}`}>
           <div className="flex gap-1">
             {modes.map((m) => (
               <button
@@ -396,9 +396,9 @@ const ModeSelector = React.memo(function ModeSelector({
                     : current.inactiveButton}
                 `}
               >
-                <span className="flex items-center gap-1.5 sm:gap-2">
+                <span className="flex items-center gap-1.5 lg:gap-2">
                   <span className="text-[10px] sm:text-xs opacity-50">{opt.label}</span>
-                  <span className="hidden sm:inline">{opt.full}</span>
+                  <span className="hidden lg:inline">{opt.full}</span>
                 </span>
               </button>
             ))}
@@ -414,9 +414,9 @@ const ModeSelector = React.memo(function ModeSelector({
               `}
               title="Keyboard Settings"
             >
-              <span className="flex items-center gap-1.5 sm:gap-2">
+              <span className="flex items-center gap-1.5 lg:gap-2">
                 <KeyboardIcon />
-                <span className="uppercase text-[10px] sm:text-xs tracking-wider hidden sm:inline">KEYBOARD SETTINGS</span>
+                <span className="uppercase text-[10px] sm:text-xs tracking-wider hidden lg:inline">KEYBOARD SETTINGS</span>
               </span>
             </button>
 
@@ -429,9 +429,9 @@ const ModeSelector = React.memo(function ModeSelector({
               `}
               title="Cycle Theme"
             >
-              <span className="flex items-center gap-1.5 sm:gap-2">
+              <span className="flex items-center gap-1.5 lg:gap-2">
                 <PaletteIcon />
-                <span className="uppercase text-[10px] sm:text-xs tracking-wider hidden sm:inline">{themeName}</span>
+                <span className="uppercase text-[10px] sm:text-xs tracking-wider hidden lg:inline">{themeName}</span>
               </span>
             </button>
 
