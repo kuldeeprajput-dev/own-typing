@@ -6,7 +6,6 @@ import { TestMode, TestOptions } from '@/types';
 import ModeSelector from './ModeSelector';
 import Stats from './Stats';
 import WordDisplay from './WordDisplay';
-import ThemeToggle from './ThemeToggle';
 import VirtualKeyboard from './VirtualKeyboard';
 import KeyboardSettingsModal from './KeyboardSettingsModal';
 import { useKeyboardSettings, KeyboardTheme } from '@/context/KeyboardSettingsContext';
@@ -175,6 +174,41 @@ export default function TypingTest() {
   } = useTypingEngine(30);
 
   useEffect(() => {
+    if (status === 'finished') {
+      const savedHistory = localStorage.getItem('owntype_results_history');
+      let historyArray = [];
+      if (savedHistory) {
+        try {
+          historyArray = JSON.parse(savedHistory);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      
+      const lastEntry = historyArray[0];
+      const now = Date.now();
+      if (lastEntry && (now - lastEntry.id < 1000)) {
+        return;
+      }
+
+      const newEntry = {
+        id: now,
+        date: new Date().toLocaleDateString(undefined, {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        wpm: stats.wpm,
+        accuracy: stats.accuracy,
+        mode: mode
+      };
+      historyArray.unshift(newEntry);
+      localStorage.setItem('owntype_results_history', JSON.stringify(historyArray.slice(0, 50)));
+    }
+  }, [status, stats.wpm, stats.accuracy, mode]);
+
+  useEffect(() => {
     inputRef.current?.focus();
   }, [inputRef]);
 
@@ -241,7 +275,6 @@ export default function TypingTest() {
       className={`flex flex-col items-center justify-center h-screen overflow-hidden p-4 transition-all duration-500 ease-in-out ${styles.bg} ${styles.text}`}
       onClick={() => inputRef.current?.focus()}
     >
-      <ThemeToggle />
       
       <KeyboardSettingsModal 
         isOpen={isSettingsOpen} 
