@@ -60,21 +60,30 @@ body {
 
 @keyframes themeReveal {
   from {
-    clip-path: circle(0% at 50% 50%);
+    clip-path: circle(0 at 50% 50%);
   }
   to {
-    clip-path: circle(150% at 50% 50%);
+    clip-path: circle(150vmax at 50% 50%);
   }
 }
 
-.theme-ripple {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  clip-path: circle(0% at 50% 50%);
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
-.theme-ripple.animate {
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
   animation: themeReveal 750ms cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+}
+
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition-duration: 0s !important;
 }
