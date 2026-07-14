@@ -162,6 +162,7 @@ export default function TypingTest() {
     options,
     stats,
     elapsed,
+    currentWordIndex,
     inputValue,
     handleInput,
     restart,
@@ -243,9 +244,14 @@ export default function TypingTest() {
       {status !== 'finished' && (
         <div
           ref={containerRef}
-          className="relative w-full max-w-7xl cursor-text text-center mt-6 px-4 overflow-hidden h-[6rem] sm:h-[6.6rem] md:h-[8rem]"
+          className="relative w-full max-w-[1400px] cursor-text text-center mt-6 px-4 overflow-hidden h-[6.5rem] sm:h-[7.5rem] md:h-[9.5rem]"
         >
-          <WordDisplay charStates={charStates} words={words} isDark={isDark} />
+          <WordDisplay 
+            charStates={charStates} 
+            words={words} 
+            currentWordIndex={currentWordIndex} 
+            isDark={isDark} 
+          />
           {!isFocused && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className={`px-4 py-2 rounded-lg text-sm transition-all duration-500 ease-in-out ${styles.focusCard}`}>

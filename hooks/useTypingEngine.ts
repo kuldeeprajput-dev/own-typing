@@ -309,6 +309,7 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     options,
     stats,
     elapsed,
+    currentWordIndex,
     inputValue,
     handleInput,
     restart,
