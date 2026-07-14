@@ -320,13 +320,13 @@ export default function TypingTest() {
       {(status === 'idle' || status === 'running') && (
         <button
           onClick={handleRestart}
-          className={`mt-6 px-4 py-2 transition-all duration-500 ease-in-out ${styles.restartBtn}`}
+          className={` transition-all  mt-1 duration-500 ease-in-out ${styles.restartBtn}`}
         >
           Restart
         </button>
       )}
 
-      <div className="mt-6 w-full flex justify-center">
+      <div className="w-full flex justify-center">
         <VirtualKeyboard />
       </div>
     </div>
