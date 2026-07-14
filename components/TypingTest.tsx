@@ -80,7 +80,7 @@ export default function TypingTest() {
 
   return (
     <div 
-      className={`flex flex-col items-center justify-center min-h-screen p-4 transition-colors duration-500 ${isDark ? 'bg-[#0f0f0f] text-zinc-100' : 'bg-[#fafafa] text-zinc-900'}`}
+      className={`flex flex-col items-center justify-center h-screen overflow-hidden p-4 transition-colors duration-500 ${isDark ? 'bg-[#0f0f0f] text-zinc-100' : 'bg-[#fafafa] text-zinc-900'}`}
       onClick={() => inputRef.current?.focus()}
     >
       <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
@@ -100,7 +100,7 @@ export default function TypingTest() {
       {status !== 'finished' && (
         <div
           ref={containerRef}
-          className="relative w-full max-w-7xl cursor-text text-center mt-8 px-4 overflow-hidden h-[6rem] sm:h-[6.6rem] md:h-[8rem]"
+          className="relative w-full max-w-7xl cursor-text text-center mt-6 px-4 overflow-hidden h-[6rem] sm:h-[6.6rem] md:h-[8rem]"
         >
           <WordDisplay charStates={charStates} words={words} isDark={isDark} />
           {!isFocused && (
@@ -114,7 +114,7 @@ export default function TypingTest() {
       )}
 
       {status === 'finished' && (
-        <div className="flex flex-col items-center mt-8">
+        <div className="flex flex-col items-center mt-6">
           <div className="flex gap-8 sm:gap-12 mb-8">
             <div className="text-center">
               <div className={`text-xs sm:text-sm ${isDark ? 'text-zinc-500' : 'text-gray-500'} uppercase mb-1`}>WPM</div>
@@ -151,13 +151,13 @@ export default function TypingTest() {
       {(status === 'idle' || status === 'running') && (
         <button
           onClick={handleRestart}
-          className={`mt-8 px-4 py-2 transition-colors ${isDark ? 'text-zinc-500 hover:text-zinc-300' : 'text-gray-500 hover:text-gray-700'}`}
+          className={`mt-6 px-4 py-2 transition-colors ${isDark ? 'text-zinc-500 hover:text-zinc-300' : 'text-gray-500 hover:text-gray-700'}`}
         >
           Restart
         </button>
       )}
 
-      <div className="mt-8 w-full flex justify-center">
+      <div className="mt-6 w-full flex justify-center">
         <VirtualKeyboard />
       </div>
     </div>

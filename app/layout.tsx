@@ -18,11 +18,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${jetbrainsMono.variable} h-full antialiased`}>
+    <html lang="en" className={`${jetbrainsMono.variable} h-full overflow-hidden antialiased`}>
       <head>
         <title>OwnType</title>
       </head>
-      <body className="min-h-full flex flex-col bg-[#0f0f0f] font-mono">{children}</body>
+      <body className="h-full overflow-hidden flex flex-col bg-[#0f0f0f] font-mono">{children}</body>
     </html>
   );
 }
