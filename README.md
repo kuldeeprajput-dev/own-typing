@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OwnType
 
-## Getting Started
+OwnType is a focused typing-speed test built with Next.js. It measures words per minute, raw speed, accuracy, and errors while keeping the interaction responsive enough for fast typists.
 
-First, run the development server:
+## Features
+
+- 15, 30, and 60 second tests
+- Optional punctuation, numbers, and capital letters
+- Live WPM, accuracy, and countdown stats
+- Six keyboard themes with light and dark modes
+- Optional key sounds, haptics, and virtual keyboard
+- Local result history and performance chart
+- Installable web-app manifest and social sharing metadata
+
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Useful commands:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+npm run start
+```
 
-## Learn More
+## Production URL
 
-To learn more about Next.js, take a look at the following resources:
+Vercel deployments use `VERCEL_PROJECT_PRODUCTION_URL` automatically. On other hosts, set `NEXT_PUBLIC_SITE_URL` to the deployed origin so canonical links, the sitemap, robots metadata, and structured data use the correct URL.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+NEXT_PUBLIC_SITE_URL=https://example.com
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+When no deployment URL is available, or the value is invalid, the app falls back to `http://localhost:3000` for local development.
 
-## Deploy on Vercel
+## Project structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `app/` — page shell, metadata, manifest, robots, and sitemap
+- `components/` — typing interface, keyboard, settings, history, and results
+- `hooks/useTypingEngine.ts` — timer, input transitions, counters, and test state
+- `context/KeyboardSettingsContext.tsx` — persisted display and feedback preferences
+- `utils/` — word generation, statistics, and local storage helpers
+- `public/` — favicon set, social preview, and the keyboard sound sprite
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The typing engine keeps counters incrementally and publishes the timer once per visible second. The caret is attached directly to the active character, so typing does not trigger layout measurement on every key.
+
+## Replacing temporary brand assets
+
+The current favicon set and `public/og-preview.jpg` are temporary. Replace the files in `public/` while keeping the same names and dimensions:
+
+- `favicon-16x16.png` and `favicon-32x32.png`
+- `apple-touch-icon.png` at 180×180
+- `own-type-icon-192.png` at 192×192
+- `own-type-favicon-512.png` at 512×512
+- `og-preview.jpg` at 1200×630
+
+Typing history and preferences stay in the browser's local storage; the app does not send test results to a server.
