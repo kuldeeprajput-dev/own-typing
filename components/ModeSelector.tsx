@@ -192,9 +192,6 @@ const ModeSelector = React.memo(function ModeSelector({
                 `}
               >
                 {m}s
-                {mode === m && (
-                  <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full transition-all duration-500 ease-in-out ${current.dot}`} />
-                )}
               </button>
             ))}
           </div>
@@ -221,9 +218,6 @@ const ModeSelector = React.memo(function ModeSelector({
                   <span className="text-[10px] sm:text-xs opacity-50">{opt.label}</span>
                   {opt.full}
                 </span>
-                {options[opt.id as keyof TestOptions] && (
-                  <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full transition-all duration-500 ease-in-out ${current.dot}`} />
-                )}
               </button>
             ))}
             
