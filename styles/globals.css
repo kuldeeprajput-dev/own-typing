@@ -57,3 +57,24 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@keyframes themeReveal {
+  from {
+    clip-path: circle(0% at 50% 50%);
+  }
+  to {
+    clip-path: circle(150% at 50% 50%);
+  }
+}
+
+.theme-ripple {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  clip-path: circle(0% at 50% 50%);
+}
+
+.theme-ripple.animate {
+  animation: themeReveal 750ms cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+}
