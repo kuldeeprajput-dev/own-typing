@@ -23,142 +23,168 @@ interface ModalTheme {
   text: string;
   subtext: string;
   accentText: string;
-  btnBg: string;
-  btnHover: string;
-  rowHover: string;
+  cardBg: string;
+  cardBorder: string;
+  iconBg: string;
+  iconColor: string;
+  graphLine: string;
 }
 
 const themeStyles: Record<KeyboardTheme, { dark: ModalTheme; light: ModalTheme }> = {
   Classic: {
     dark: {
-      bg: 'bg-zinc-950/95 backdrop-blur-lg',
+      bg: 'bg-zinc-950/98 backdrop-blur-xl',
       border: 'border-zinc-800/80',
       text: 'text-zinc-100',
       subtext: 'text-zinc-500',
       accentText: 'text-[#EAB308]',
-      btnBg: 'bg-zinc-900 hover:bg-zinc-800 text-zinc-300',
-      btnHover: 'hover:bg-red-950/50 hover:text-red-400 hover:border-red-900/50',
-      rowHover: 'hover:bg-zinc-900/30'
+      cardBg: 'bg-zinc-900/40',
+      cardBorder: 'border-zinc-800/50',
+      iconBg: 'bg-[#EAB308]/10',
+      iconColor: 'text-[#EAB308]',
+      graphLine: '#EAB308'
     },
     light: {
-      bg: 'bg-white/95 backdrop-blur-lg',
+      bg: 'bg-white/98 backdrop-blur-xl',
       border: 'border-zinc-200/80',
       text: 'text-zinc-800',
       subtext: 'text-zinc-400',
       accentText: 'text-amber-600',
-      btnBg: 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700',
-      btnHover: 'hover:bg-red-50 hover:text-red-650 hover:border-red-200',
-      rowHover: 'hover:bg-zinc-50/50'
+      cardBg: 'bg-zinc-100/50',
+      cardBorder: 'border-zinc-200/50',
+      iconBg: 'bg-amber-600/10',
+      iconColor: 'text-amber-600',
+      graphLine: '#d97706'
     }
   },
   Mint: {
     dark: {
-      bg: 'bg-[#0a1412]/95 backdrop-blur-lg',
+      bg: 'bg-[#0a1412]/98 backdrop-blur-xl',
       border: 'border-emerald-950/80',
       text: 'text-zinc-100',
       subtext: 'text-emerald-900/60',
       accentText: 'text-emerald-400',
-      btnBg: 'bg-emerald-950/30 hover:bg-emerald-950/60 text-emerald-300',
-      btnHover: 'hover:bg-red-950/50 hover:text-red-400 hover:border-red-900/50',
-      rowHover: 'hover:bg-emerald-950/10'
+      cardBg: 'bg-emerald-950/10',
+      cardBorder: 'border-emerald-950/30',
+      iconBg: 'bg-emerald-500/10',
+      iconColor: 'text-emerald-400',
+      graphLine: '#34d399'
     },
     light: {
-      bg: 'bg-white/95 backdrop-blur-lg',
+      bg: 'bg-white/98 backdrop-blur-xl',
       border: 'border-emerald-200/80',
       text: 'text-emerald-900',
       subtext: 'text-emerald-600/60',
-      accentText: 'text-emerald-600',
-      btnBg: 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700',
-      btnHover: 'hover:bg-red-50 hover:text-red-600 hover:border-red-200',
-      rowHover: 'hover:bg-emerald-50/30'
+      accentText: 'text-emerald-650',
+      cardBg: 'bg-emerald-50/30',
+      cardBorder: 'border-emerald-100/40',
+      iconBg: 'bg-emerald-600/10',
+      iconColor: 'text-emerald-600',
+      graphLine: '#059669'
     }
   },
   Royal: {
     dark: {
-      bg: 'bg-[#060a14]/95 backdrop-blur-lg',
+      bg: 'bg-[#060a14]/98 backdrop-blur-xl',
       border: 'border-blue-950/80',
       text: 'text-zinc-100',
       subtext: 'text-blue-900/60',
       accentText: 'text-blue-400',
-      btnBg: 'bg-blue-950/30 hover:bg-blue-950/60 text-blue-300',
-      btnHover: 'hover:bg-red-950/50 hover:text-red-400 hover:border-red-900/50',
-      rowHover: 'hover:bg-blue-950/10'
+      cardBg: 'bg-blue-950/10',
+      cardBorder: 'border-blue-950/30',
+      iconBg: 'bg-blue-500/10',
+      iconColor: 'text-blue-400',
+      graphLine: '#3b82f6'
     },
     light: {
-      bg: 'bg-white/95 backdrop-blur-lg',
+      bg: 'bg-white/98 backdrop-blur-xl',
       border: 'border-blue-200/80',
       text: 'text-blue-900',
       subtext: 'text-blue-600/60',
       accentText: 'text-blue-600',
-      btnBg: 'bg-blue-50 hover:bg-blue-100 text-blue-700',
-      btnHover: 'hover:bg-red-50 hover:text-red-600 hover:border-red-200',
-      rowHover: 'hover:bg-blue-50/30'
+      cardBg: 'bg-blue-50/30',
+      cardBorder: 'border-blue-100/40',
+      iconBg: 'bg-blue-600/10',
+      iconColor: 'text-blue-600',
+      graphLine: '#2563eb'
     }
   },
   Dolch: {
     dark: {
-      bg: 'bg-[#121212]/95 backdrop-blur-lg',
+      bg: 'bg-[#121212]/98 backdrop-blur-xl',
       border: 'border-zinc-800/80',
       text: 'text-zinc-100',
       subtext: 'text-zinc-500',
       accentText: 'text-cyan-400',
-      btnBg: 'bg-zinc-900 hover:bg-zinc-800 text-zinc-300',
-      btnHover: 'hover:bg-red-950/50 hover:text-red-400 hover:border-red-900/50',
-      rowHover: 'hover:bg-zinc-900/30'
+      cardBg: 'bg-zinc-900/40',
+      cardBorder: 'border-zinc-800/50',
+      iconBg: 'bg-cyan-500/10',
+      iconColor: 'text-cyan-400',
+      graphLine: '#06b6d4'
     },
     light: {
-      bg: 'bg-white/95 backdrop-blur-lg',
+      bg: 'bg-white/98 backdrop-blur-xl',
       border: 'border-zinc-200/80',
-      text: 'text-zinc-800',
-      subtext: 'text-zinc-400',
+      text: 'text-zinc-850',
+      subtext: 'text-zinc-450',
       accentText: 'text-cyan-600',
-      btnBg: 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700',
-      btnHover: 'hover:bg-red-50 hover:text-red-655 hover:border-red-200',
-      rowHover: 'hover:bg-zinc-50/50'
+      cardBg: 'bg-zinc-100/50',
+      cardBorder: 'border-zinc-200/50',
+      iconBg: 'bg-cyan-600/10',
+      iconColor: 'text-cyan-600',
+      graphLine: '#0891b2'
     }
   },
   Sand: {
     dark: {
-      bg: 'bg-[#14100c]/95 backdrop-blur-lg',
+      bg: 'bg-[#14100c]/98 backdrop-blur-xl',
       border: 'border-[#3e3427]/80',
       text: 'text-zinc-100',
       subtext: 'text-[#8c7853]/60',
       accentText: 'text-amber-500',
-      btnBg: 'bg-[#1f1a14]/60 hover:bg-[#1f1a14] text-amber-500/70',
-      btnHover: 'hover:bg-red-950/50 hover:text-red-400 hover:border-red-900/50',
-      rowHover: 'hover:bg-[#1f1a14]/20'
+      cardBg: 'bg-[#1f1a14]/30',
+      cardBorder: 'border-[#3e3427]/40',
+      iconBg: 'bg-amber-500/10',
+      iconColor: 'text-amber-500',
+      graphLine: '#f59e0b'
     },
     light: {
-      bg: 'bg-[#fdfbf7]/95 backdrop-blur-lg',
+      bg: 'bg-[#fdfbf7]/98 backdrop-blur-xl',
       border: 'border-[#ebdcc3]/80',
       text: 'text-[#451a03]',
       subtext: 'text-[#8c7853]/60',
       accentText: 'text-amber-700',
-      btnBg: 'bg-[#ebdcc3]/50 hover:bg-[#ebdcc3] text-[#451a03]/80',
-      btnHover: 'hover:bg-red-50 hover:text-red-600 hover:border-red-200',
-      rowHover: 'hover:bg-[#ebdcc3]/20'
+      cardBg: 'bg-[#ebdcc3]/20',
+      cardBorder: 'border-[#ebdcc3]/40',
+      iconBg: 'bg-amber-755/10',
+      iconColor: 'text-amber-700',
+      graphLine: '#b45309'
     }
   },
   Scarlet: {
     dark: {
-      bg: 'bg-[#140606]/95 backdrop-blur-lg',
+      bg: 'bg-[#140606]/98 backdrop-blur-xl',
       border: 'border-red-950/80',
       text: 'text-zinc-100',
       subtext: 'text-red-950/60',
       accentText: 'text-red-400',
-      btnBg: 'bg-red-950/20 hover:bg-red-950/50 text-red-300',
-      btnHover: 'hover:bg-red-950/80 hover:text-red-200 hover:border-red-900',
-      rowHover: 'hover:bg-red-950/10'
+      cardBg: 'bg-red-950/10',
+      cardBorder: 'border-red-950/30',
+      iconBg: 'bg-red-500/10',
+      iconColor: 'text-red-400',
+      graphLine: '#ef4444'
     },
     light: {
-      bg: 'bg-white/95 backdrop-blur-lg',
+      bg: 'bg-white/98 backdrop-blur-xl',
       border: 'border-red-200/80',
       text: 'text-red-900',
       subtext: 'text-red-600/60',
       accentText: 'text-red-600',
-      btnBg: 'bg-red-50 hover:bg-red-100 text-red-700',
-      btnHover: 'hover:bg-red-100/85 hover:text-red-900 hover:border-red-300',
-      rowHover: 'hover:bg-red-50/30'
+      cardBg: 'bg-red-50/30',
+      cardBorder: 'border-red-100/40',
+      iconBg: 'bg-red-655/10',
+      iconColor: 'text-red-600',
+      graphLine: '#dc2626'
     }
   }
 };
@@ -185,6 +211,11 @@ export default function HistoryModal({ isOpen, onClose, isDark = true }: History
   const activeTheme = themeStyles[settings.theme] || themeStyles.Classic;
   const style = isDark ? activeTheme.dark : activeTheme.light;
 
+  // Compute stats metrics
+  const bestWpm = history.length > 0 ? Math.max(...history.map((h) => h.wpm)) : 0;
+  const avgWpm = history.length > 0 ? Math.round(history.reduce((sum, h) => sum + h.wpm, 0) / history.length) : 0;
+  const avgAccuracy = history.length > 0 ? Math.round(history.reduce((sum, h) => sum + h.accuracy, 0) / history.length) : 0;
+
   const handleClearHistory = () => {
     if (window.confirm('Are you sure you want to clear your typing history?')) {
       localStorage.removeItem('owntype_results_history');
@@ -192,108 +223,251 @@ export default function HistoryModal({ isOpen, onClose, isDark = true }: History
     }
   };
 
+  // Graph Data Processing: Plot last 10 runs in chronological order (oldest to newest)
+  const lastRuns = history.slice(0, 10).reverse();
+
+  // SVG Chart Parameters
+  const chartWidth = 700;
+  const chartHeight = 220;
+  const paddingLeft = 40;
+  const paddingRight = 20;
+  const paddingTop = 20;
+  const paddingBottom = 30;
+
+  const plotWidth = chartWidth - paddingLeft - paddingRight;
+  const plotHeight = chartHeight - paddingTop - paddingBottom;
+
+  const maxVal = Math.max(60, ...lastRuns.map(h => h.wpm)) + 5;
+  const gridSteps = [0, 15, 30, 45, 60];
+
+  const wpmPoints = lastRuns.map((h, i) => {
+    const x = paddingLeft + (i / (lastRuns.length - 1 || 1)) * plotWidth;
+    const y = paddingTop + plotHeight - (h.wpm / maxVal) * plotHeight;
+    return { x, y };
+  });
+
+  // Bezier curve calculations for smooth line
+  const getBezierCommand = (point: { x: number; y: number }, i: number, a: { x: number; y: number }[]) => {
+    const line = (pointA: { x: number; y: number }, pointB: { x: number; y: number }) => {
+      const lengthX = pointB.x - pointA.x;
+      const lengthY = pointB.y - pointA.y;
+      return {
+        length: Math.sqrt(Math.pow(lengthX, 2) + Math.pow(lengthY, 2)),
+        angle: Math.atan2(lengthY, lengthX)
+      };
+    };
+
+    const controlPoint = (current: { x: number; y: number }, previous: { x: number; y: number }, next: { x: number; y: number }, reverse?: boolean) => {
+      const p = previous || current;
+      const n = next || current;
+      const o = line(p, n);
+      const smoothing = 0.2;
+      const angle = o.angle + (reverse ? Math.PI : 0);
+      const length = o.length * smoothing;
+      const x = current.x + Math.cos(angle) * length;
+      const y = current.y + Math.sin(angle) * length;
+      return [x, y];
+    };
+
+    const p = a[i - 1];
+    const n = a[i + 1];
+    const [cpsX, cpsY] = controlPoint(p, a[i - 2], point);
+    const [cpeX, cpeY] = controlPoint(point, p, n, true);
+    return `C ${cpsX},${cpsY} ${cpeX},${cpeY} ${point.x},${point.y}`;
+  };
+
+  const wpmPath = wpmPoints.length > 0
+    ? wpmPoints.reduce((acc, point, i, a) => i === 0
+        ? `M ${point.x},${point.y}`
+        : `${acc} ${getBezierCommand(point, i, a)}`
+      , '')
+    : '';
+
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-200">
       {/* Backdrop overlay */}
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+        className="absolute inset-0 bg-black/75 backdrop-blur-md" 
         onClick={onClose}
       />
       
       {/* Modal content box */}
       <div className={`
-        relative w-full max-w-xl rounded-3xl border p-6 shadow-2xl flex flex-col max-h-[80vh]
+        relative w-full max-w-4xl rounded-3xl border p-8 shadow-2xl flex flex-col max-h-[90vh]
         transition-all duration-300 transform scale-100 animate-in zoom-in-95 duration-200
         ${style.bg} ${style.border} ${style.text} font-['JetBrains_Mono',_monospace]
       `}>
         {/* Header */}
-        <div className="flex justify-between items-center mb-6 pb-4 border-b border-zinc-805/10">
-          <div className="flex items-center gap-2">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="20" 
-              height="20" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2.5" 
-              className={style.accentText}
-            >
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-              <path d="M3 3v5h5" />
-              <path d="M12 7v5l4 2" />
-            </svg>
-            <h2 className="text-xl font-bold uppercase tracking-wider">Result History</h2>
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center gap-2.5">
+            <span className={`text-2xl font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+              performance
+            </span>
+            <span className={`text-2xl font-bold uppercase tracking-wider ${style.accentText}`}>
+              history
+            </span>
           </div>
           
-          <button 
-            onClick={onClose}
-            className="p-1 rounded-lg transition-colors hover:bg-zinc-850/10 focus:outline-none"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
+          <div className="flex items-center gap-4">
+            {history.length > 0 && (
+              <button
+                onClick={handleClearHistory}
+                className={`p-2 rounded-xl transition-all duration-300 ${style.iconColor} bg-red-500/10 hover:bg-red-500/20`}
+                title="Clear History"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-6 5v6m4-6v6" />
+                </svg>
+              </button>
+            )}
+            <button 
+              onClick={onClose}
+              className={`p-2 rounded-xl transition-colors hover:bg-zinc-800/10 focus:outline-none`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto pr-1 mb-6">
+        <div className="flex-1 overflow-y-auto pr-1">
           {history.length === 0 ? (
-            <div className={`text-center py-12 ${style.subtext} text-sm italic`}>
-              No typing tests completed yet. Start typing to record history!
+            <div className={`text-center py-20 ${style.subtext} text-base italic`}>
+              No typing tests completed yet. Complete a test to view progress history!
             </div>
           ) : (
-            <div className="w-full">
-              <table className="w-full border-collapse text-left">
-                <thead>
-                  <tr className={`border-b border-zinc-850/10 text-xs font-bold uppercase tracking-wider ${style.subtext}`}>
-                    <th className="pb-3 pl-2">Date</th>
-                    <th className="pb-3 text-center">Mode</th>
-                    <th className="pb-3 text-center">WPM</th>
-                    <th className="pb-3 text-center">Acc</th>
-                  </tr>
-                </thead>
-                <tbody className="text-sm">
-                  {history.map((entry) => (
-                    <tr 
-                      key={entry.id}
-                      className={`border-b border-zinc-850/5 transition-colors ${style.rowHover}`}
-                    >
-                      <td className="py-3 pl-2 font-bold whitespace-nowrap">{entry.date}</td>
-                      <td className="py-3 text-center font-bold">{entry.mode}s</td>
-                      <td className={`py-3 text-center font-black ${style.accentText}`}>{entry.wpm}</td>
-                      <td className="py-3 text-center font-bold">{entry.accuracy}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="flex flex-col">
+              {/* Top Three Cards Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                {/* Card 1: Best WPM */}
+                <div className={`flex items-center gap-4 p-5 rounded-2xl border ${style.cardBg} ${style.cardBorder} transition-all duration-300 hover:border-zinc-700/30`}>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${style.iconBg} ${style.iconColor}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="m22 7-8.5 8.5-5-5L2 17" />
+                      <path d="M16 7h6v6" />
+                    </svg>
+                  </div>
+                  <div>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${style.subtext}`}>Best WPM</span>
+                    <h3 className="text-3xl font-black mt-0.5 leading-none">{bestWpm}</h3>
+                  </div>
+                </div>
+
+                {/* Card 2: Average WPM */}
+                <div className={`flex items-center gap-4 p-5 rounded-2xl border ${style.cardBg} ${style.cardBorder} transition-all duration-300 hover:border-zinc-700/30`}>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-blue-500/10 text-blue-400`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                  </div>
+                  <div>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${style.subtext}`}>Average WPM</span>
+                    <h3 className="text-3xl font-black mt-0.5 leading-none">{avgWpm}</h3>
+                  </div>
+                </div>
+
+                {/* Card 3: Average Accuracy */}
+                <div className={`flex items-center gap-4 p-5 rounded-2xl border ${style.cardBg} ${style.cardBorder} transition-all duration-300 hover:border-zinc-700/30`}>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-emerald-500/10 text-emerald-450`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <circle cx="12" cy="12" r="10" />
+                      <circle cx="12" cy="12" r="6" />
+                      <circle cx="12" cy="12" r="2" />
+                    </svg>
+                  </div>
+                  <div>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${style.subtext}`}>Average Accuracy</span>
+                    <h3 className="text-3xl font-black mt-0.5 leading-none">{avgAccuracy}%</h3>
+                  </div>
+                </div>
+              </div>
+
+              {/* Chart Section */}
+              <div className="mb-4">
+                <span className={`inline-block text-[11px] font-bold uppercase tracking-widest mb-4 ${style.subtext}`}>
+                  wpm progress
+                </span>
+                
+                {/* SVG Graph Container */}
+                <div className="w-full relative h-[240px]">
+                  <svg width="100%" height="100%" viewBox="0 0 700 220" preserveAspectRatio="none">
+                    {/* Horizontal grid lines */}
+                    {gridSteps.map((val, idx) => {
+                      const y = paddingTop + plotHeight - (val / maxVal) * plotHeight;
+                      return (
+                        <g key={idx} className="opacity-30">
+                          <line 
+                            x1={paddingLeft} 
+                            y1={y} 
+                            x2={chartWidth - paddingRight} 
+                            y2={y} 
+                            stroke={isDark ? '#27272a' : '#e4e4e7'} 
+                            strokeWidth="1" 
+                            strokeDasharray="4 4" 
+                          />
+                          <text 
+                            x={paddingLeft - 10} 
+                            y={y + 4} 
+                            textAnchor="end" 
+                            fill={isDark ? '#52525b' : '#a1a1aa'} 
+                            className="text-[9px] font-bold"
+                          >
+                            {val}
+                          </text>
+                        </g>
+                      );
+                    })}
+
+                    {/* Curve line */}
+                    {wpmPath && (
+                      <path 
+                        d={wpmPath} 
+                        fill="none" 
+                        stroke={style.graphLine} 
+                        strokeWidth="3" 
+                        strokeLinecap="round" 
+                      />
+                    )}
+
+                    {/* Data dots & labels */}
+                    {wpmPoints.map((p, i) => (
+                      <g key={i}>
+                        <circle
+                          cx={p.x}
+                          cy={p.y}
+                          r="4.5"
+                          fill={isDark ? '#09090b' : '#ffffff'}
+                          stroke={style.graphLine}
+                          strokeWidth="2.5"
+                        />
+                      </g>
+                    ))}
+
+                    {/* X Axis sequence tags (#1, #2, etc.) */}
+                    {lastRuns.map((h, i) => {
+                      const x = paddingLeft + (i / (lastRuns.length - 1 || 1)) * plotWidth;
+                      return (
+                        <text
+                          key={i}
+                          x={x}
+                          y={chartHeight - 10}
+                          textAnchor="middle"
+                          fill={isDark ? '#52525b' : '#a1a1aa'}
+                          className="text-[9px] font-bold"
+                        >
+                          #{i + 1}
+                        </text>
+                      );
+                    })}
+                  </svg>
+                </div>
+              </div>
             </div>
           )}
-        </div>
-
-        {/* Footer controls */}
-        <div className="flex justify-between items-center pt-4 border-t border-zinc-805/10 gap-3">
-          {history.length > 0 && (
-            <button
-              onClick={handleClearHistory}
-              className={`
-                px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 border border-transparent
-                ${style.btnBg} ${style.btnHover}
-              `}
-            >
-              CLEAR HISTORY
-            </button>
-          )}
-          <button
-            onClick={onClose}
-            className={`
-              ml-auto px-5 py-2 rounded-xl text-xs font-bold transition-all duration-300 border
-              ${style.btnBg} border-transparent hover:border-zinc-500/30
-            `}
-          >
-            CLOSE
-          </button>
         </div>
       </div>
     </div>
