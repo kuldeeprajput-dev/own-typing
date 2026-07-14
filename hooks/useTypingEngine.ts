@@ -74,10 +74,13 @@ export function useTypingEngine(initialMode: TestMode = 30) {
   const [mode, setModeState] = useState<TestMode>(initialMode);
   const [elapsed, setElapsed] = useState(0);
   const [inputValue, setInputValue] = useState('');
+  const [history, setHistory] = useState<{ second: number; wpm: number; rawWpm: number }[]>([]);
   
   // Stats tracking
   const totalKeystrokesRef = useRef(0);
   const correctKeystrokesRef = useRef(0);
+  const charStatesRef = useRef<CharState[][]>(initialData.charStates);
+
   const [stats, setStats] = useState<TypingStats>(() => ({
     wpm: 0,
     rawWpm: 0,
@@ -91,6 +94,11 @@ export function useTypingEngine(initialMode: TestMode = 30) {
   const startTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Sync charStates to ref to avoid stale closure in setInterval
+  useEffect(() => {
+    charStatesRef.current = charStates;
+  }, [charStates]);
 
   const clearTimer = useCallback(() => {
     if (intervalRef.current) {
@@ -114,15 +122,52 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     startTimeRef.current = performance.now();
     statusRef.current = 'running';
     setStatus('running');
+    setHistory([]);
     intervalRef.current = setInterval(() => {
       if (startTimeRef.current !== null) {
         const newElapsed = (performance.now() - startTimeRef.current) / 1000;
         setElapsed(newElapsed);
 
+        // Record history at each integer second
+        const second = Math.floor(newElapsed);
+        if (second > 0 && second <= mode) {
+          setHistory(prev => {
+            if (prev.some(h => h.second === second)) return prev;
+
+            const statsAtSecond = computeStats(
+              charStatesRef.current,
+              second,
+              totalKeystrokesRef.current,
+              correctKeystrokesRef.current
+            );
+            return [...prev, {
+              second,
+              wpm: statsAtSecond.wpm,
+              rawWpm: statsAtSecond.rawWpm
+            }];
+          });
+        }
+
         if (newElapsed >= mode) {
           clearTimer();
           statusRef.current = 'finished';
           setStatus('finished');
+
+          // Append final second stats to history if not present
+          setHistory(prev => {
+            if (prev.some(h => h.second === mode)) return prev;
+            const finalStats = computeStats(
+              charStatesRef.current,
+              mode,
+              totalKeystrokesRef.current,
+              correctKeystrokesRef.current
+            );
+            return [...prev, {
+              second: mode,
+              wpm: finalStats.wpm,
+              rawWpm: finalStats.rawWpm
+            }];
+          });
         }
       }
     }, 100);
@@ -136,9 +181,11 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     
     totalKeystrokesRef.current = 0;
     correctKeystrokesRef.current = 0;
+    charStatesRef.current = newCharStates;
     
     setWords(newWords);
     setCharStates(newCharStates);
+    setHistory([]);
     setCurrentWordIndex(0);
     setCurrentCharIndex(0);
     setStatus('idle');
@@ -320,5 +367,6 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     setMode,
     setOptions,
     inputRef,
+    history,
   };
 }

@@ -10,6 +10,7 @@ import ThemeToggle from './ThemeToggle';
 import VirtualKeyboard from './VirtualKeyboard';
 import KeyboardSettingsModal from './KeyboardSettingsModal';
 import { useKeyboardSettings, KeyboardTheme } from '@/context/KeyboardSettingsContext';
+import ResultsDashboard from './ResultsDashboard';
 
 interface ThemeStyles {
   bg: string;
@@ -170,6 +171,7 @@ export default function TypingTest() {
     setMode,
     setOptions,
     inputRef,
+    history,
   } = useTypingEngine(30);
 
   useEffect(() => {
@@ -258,7 +260,9 @@ export default function TypingTest() {
         />
       </div>
 
-      <Stats stats={stats} mode={mode} elapsed={elapsed} bestWpm={null} isDark={isDark} />
+      {status !== 'finished' && (
+        <Stats stats={stats} mode={mode} elapsed={elapsed} bestWpm={null} isDark={isDark} />
+      )}
 
       {status !== 'finished' && (
         <div
@@ -283,24 +287,14 @@ export default function TypingTest() {
       )}
 
       {status === 'finished' && (
-        <div className="flex flex-col items-center mt-6">
-          <div className="flex gap-8 sm:gap-12 mb-8">
-            <div className="text-center">
-              <div className={`text-xs sm:text-sm ${isDark ? 'text-zinc-500' : 'text-gray-500'} uppercase mb-1`}>WPM</div>
-              <div className={`text-5xl sm:text-6xl font-bold transition-all duration-500 ease-in-out ${styles.accentText}`}>{stats.wpm}</div>
-            </div>
-            <div className="text-center">
-              <div className={`text-xs sm:text-sm ${isDark ? 'text-zinc-500' : 'text-gray-500'} uppercase mb-1`}>Accuracy</div>
-              <div className="text-5xl sm:text-6xl font-bold transition-all duration-500 ease-in-out">{stats.accuracy}%</div>
-            </div>
-          </div>
-          <button
-            onClick={handleTryAgain}
-            className={`px-8 py-3 font-bold rounded-lg transition-all duration-500 ease-in-out transform ${styles.tryAgainBtn} ${styles.tryAgainHover}`}
-          >
-            Try Again
-          </button>
-        </div>
+        <ResultsDashboard 
+          stats={stats} 
+          mode={mode} 
+          history={history} 
+          words={words} 
+          isDark={isDark} 
+          onRestart={handleTryAgain} 
+        />
       )}
 
       <input
@@ -326,9 +320,11 @@ export default function TypingTest() {
         </button>
       )}
 
-      <div className="w-full flex justify-center">
-        <VirtualKeyboard />
-      </div>
+      {status !== 'finished' && (
+        <div className="w-full flex justify-center">
+          <VirtualKeyboard />
+        </div>
+      )}
     </div>
   );
 }
