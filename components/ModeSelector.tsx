@@ -345,12 +345,12 @@ const ModeSelector = React.memo(function ModeSelector({
   const themeName = settings.theme === 'Classic' ? 'default' : settings.theme.toLowerCase();
 
   return (
-    <div className="flex flex-col items-center gap-4 mb-10 group">
+    <div className="flex flex-col items-center gap-4 mb-6 sm:mb-10 group">
       <div className={`
-        flex flex-col sm:flex-row items-center gap-4 sm:gap-6 px-4 sm:px-6 py-4 sm:py-3 rounded-2xl shadow-xl transition-all duration-500 ease-in-out border
+        flex flex-col sm:flex-row items-center gap-2.5 sm:gap-6 px-3 py-3 sm:px-6 sm:py-3 rounded-2xl shadow-xl transition-all duration-500 ease-in-out border
         ${current.card}
       `}>
-        <div className={`flex w-full justify-center border-b pb-4 transition-all duration-500 ease-in-out sm:w-auto sm:border-b-0 sm:border-r sm:pb-0 sm:pr-6 ${current.borderClass}`}>
+        <div className={`flex w-full justify-center border-b pb-2 transition-all duration-500 ease-in-out sm:w-auto sm:border-b-0 sm:border-r sm:pb-0 sm:pr-6 ${current.borderClass}`}>
           <OwnTypeBrand
             accentText={brandAccentText}
             text={brandText}
@@ -358,7 +358,7 @@ const ModeSelector = React.memo(function ModeSelector({
           />
         </div>
 
-        <div className={`flex flex-wrap justify-center items-center gap-1 border-b sm:border-b-0 sm:border-r pb-4 sm:pb-0 pr-0 sm:pr-6 transition-all duration-500 ease-in-out ${current.borderClass}`}>
+        <div className={`flex flex-wrap justify-center items-center gap-1 border-b sm:border-b-0 sm:border-r pb-2 sm:pb-0 pr-0 sm:pr-6 transition-all duration-500 ease-in-out ${current.borderClass}`}>
           <div className="flex gap-1">
             {modes.map((m) => (
               <button
@@ -380,7 +380,7 @@ const ModeSelector = React.memo(function ModeSelector({
         </div>
         
         <div className="flex items-center gap-1 w-full justify-center">
-          <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
+          <div className="flex justify-center items-center gap-1 sm:gap-2">
             {[
               { id: 'punctuation', label: '@', full: 'punctuation' },
               { id: 'capitals', label: 'Aa', full: 'capitals' },
@@ -398,7 +398,7 @@ const ModeSelector = React.memo(function ModeSelector({
               >
                 <span className="flex items-center gap-1.5 sm:gap-2">
                   <span className="text-[10px] sm:text-xs opacity-50">{opt.label}</span>
-                  {opt.full}
+                  <span className="hidden sm:inline">{opt.full}</span>
                 </span>
               </button>
             ))}
@@ -416,7 +416,7 @@ const ModeSelector = React.memo(function ModeSelector({
             >
               <span className="flex items-center gap-1.5 sm:gap-2">
                 <KeyboardIcon />
-                <span className="uppercase text-[10px] sm:text-xs tracking-wider">KEYBOARD SETTINGS</span>
+                <span className="uppercase text-[10px] sm:text-xs tracking-wider hidden sm:inline">KEYBOARD SETTINGS</span>
               </span>
             </button>
 
@@ -431,7 +431,7 @@ const ModeSelector = React.memo(function ModeSelector({
             >
               <span className="flex items-center gap-1.5 sm:gap-2">
                 <PaletteIcon />
-                <span className="uppercase text-[10px] sm:text-xs tracking-wider">{themeName}</span>
+                <span className="uppercase text-[10px] sm:text-xs tracking-wider hidden sm:inline">{themeName}</span>
               </span>
             </button>
 
