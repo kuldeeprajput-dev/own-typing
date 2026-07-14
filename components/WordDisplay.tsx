@@ -1,62 +1,70 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { CharState } from '@/types';
 import { useKeyboardSettings, KeyboardTheme } from '@/context/KeyboardSettingsContext';
 
 interface WordRowProps {
   charStates: CharState[];
   isDark?: boolean;
+  activeCharRef?: React.RefObject<HTMLSpanElement | null>;
+  isAtEnd: boolean;
 }
 
-const themeCursorMap: Record<KeyboardTheme, { dark: { bg: string; border: string }; light: { bg: string; border: string } }> = {
-  Classic: {
-    dark: { bg: 'bg-amber-500/20 text-white', border: 'border-amber-500' },
-    light: { bg: 'bg-amber-500/15 text-zinc-900', border: 'border-amber-600' },
+const themeCursorStyleMap: Record<KeyboardTheme, { 
+  dark: { cursor: string; shadow: string }; 
+  light: { cursor: string; shadow: string } 
+}> = {
+  Classic: { 
+    dark: { cursor: 'bg-[#EAB308]', shadow: 'shadow-[1.5px_0_3px_rgba(234,179,8,0.25)]' }, 
+    light: { cursor: 'bg-[#EAB308]', shadow: 'shadow-[1.5px_0_3px_rgba(234,179,8,0.25)]' } 
   },
-  Mint: {
-    dark: { bg: 'bg-emerald-500/20 text-emerald-100', border: 'border-emerald-400' },
-    light: { bg: 'bg-emerald-500/15 text-emerald-950', border: 'border-emerald-600' },
+  Mint: { 
+    dark: { cursor: 'bg-emerald-400', shadow: 'shadow-[1.5px_0_3px_rgba(52,211,153,0.25)]' }, 
+    light: { cursor: 'bg-emerald-600', shadow: 'shadow-[1.5px_0_3px_rgba(5,150,105,0.25)]' } 
   },
-  Royal: {
-    dark: { bg: 'bg-blue-500/20 text-blue-100', border: 'border-blue-400' },
-    light: { bg: 'bg-blue-500/15 text-blue-950', border: 'border-blue-600' },
+  Royal: { 
+    dark: { cursor: 'bg-blue-400', shadow: 'shadow-[1.5px_0_3px_rgba(96,165,250,0.25)]' }, 
+    light: { cursor: 'bg-blue-600', shadow: 'shadow-[1.5px_0_3px_rgba(37,99,235,0.25)]' } 
   },
-  Dolch: {
-    dark: { bg: 'bg-cyan-500/20 text-cyan-100', border: 'border-cyan-400' },
-    light: { bg: 'bg-cyan-500/15 text-cyan-950', border: 'border-cyan-600' },
+  Dolch: { 
+    dark: { cursor: 'bg-cyan-400', shadow: 'shadow-[1.5px_0_3px_rgba(34,220,238,0.25)]' }, 
+    light: { cursor: 'bg-cyan-600', shadow: 'shadow-[1.5px_0_3px_rgba(8,145,178,0.25)]' } 
   },
-  Sand: {
-    dark: { bg: 'bg-amber-600/20 text-amber-100', border: 'border-amber-500' },
-    light: { bg: 'bg-amber-750/15 text-[#451a03]', border: 'border-amber-700' },
+  Sand: { 
+    dark: { cursor: 'bg-amber-600', shadow: 'shadow-[1.5px_0_3px_rgba(217,119,6,0.25)]' }, 
+    light: { cursor: 'bg-amber-700', shadow: 'shadow-[1.5px_0_3px_rgba(180,83,9,0.25)]' } 
   },
-  Scarlet: {
-    dark: { bg: 'bg-red-500/20 text-red-100', border: 'border-red-400' },
-    light: { bg: 'bg-red-500/15 text-red-950', border: 'border-red-600' },
+  Scarlet: { 
+    dark: { cursor: 'bg-red-500', shadow: 'shadow-[1.5px_0_3px_rgba(239,68,68,0.25)]' }, 
+    light: { cursor: 'bg-red-600', shadow: 'shadow-[1.5px_0_3px_rgba(220,38,38,0.25)]' } 
   },
 };
 
-const WordRow = React.memo(function WordRow({ charStates, isDark = true }: WordRowProps) {
-  const { settings } = useKeyboardSettings();
-  const themeStyles = themeCursorMap[settings.theme] || themeCursorMap.Classic;
-  const cursorStyle = isDark ? themeStyles.dark : themeStyles.light;
-
+const WordRow = React.memo(function WordRow({ charStates, isDark = true, activeCharRef, isAtEnd }: WordRowProps) {
   return (
     <span className="inline-block select-none">
-      {charStates.map((charState, index) => (
-        <span
-          key={index}
-          className={`
-            inline transition-all duration-350 ease-in-out
-            ${charState.status === 'idle' ? (isDark ? 'text-zinc-500' : 'text-gray-400') : ''}
-            ${charState.status === 'correct' ? 'text-green-500' : ''}
-            ${charState.status === 'incorrect' ? 'text-red-500 bg-red-100 dark:bg-red-900/20' : ''}
-            ${charState.status === 'current' ? `${cursorStyle.bg} ${cursorStyle.border} border-l-2` : ''}
-          `}
-        >
-          {charState.char}
-        </span>
-      ))}
+      {charStates.map((charState, index) => {
+        const isTarget = isAtEnd 
+          ? index === charStates.length - 1 
+          : charState.status === 'current';
+
+        return (
+          <span
+            key={index}
+            ref={isTarget ? (activeCharRef as any) : undefined}
+            className={`
+              relative inline transition-colors duration-75 ease-out
+              ${charState.status === 'idle' ? (isDark ? 'text-zinc-500' : 'text-gray-400') : ''}
+              ${charState.status === 'correct' ? (isDark ? 'text-white' : 'text-zinc-900') : ''}
+              ${charState.status === 'incorrect' ? 'text-red-500 bg-red-100 dark:bg-red-900/20' : ''}
+              ${charState.status === 'current' ? (isDark ? 'text-zinc-500' : 'text-gray-400') : ''}
+            `}
+          >
+            {charState.char}
+          </span>
+        );
+      })}
     </span>
   );
 });
@@ -78,12 +86,73 @@ const WordDisplay = React.memo(function WordDisplay({
   isDark = true,
   activeWordRef
 }: WordDisplayProps) {
+  const { settings } = useKeyboardSettings();
+  const themeStyles = themeCursorStyleMap[settings.theme] || themeCursorStyleMap.Classic;
+  const cursorStyle = isDark ? themeStyles.dark : themeStyles.light;
+
+  const activeCharRef = useRef<HTMLSpanElement>(null);
+  const [cursorCoords, setCursorCoords] = useState<{ left: number; top: number; height: number } | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
+
+  const activeWordChars = charStates[currentWordIndex] || [];
+  const currentCharIndex = activeWordChars.findIndex(c => c.status === 'current');
+  const isAtEnd = currentCharIndex === -1 && activeWordChars.length > 0;
+
+  useEffect(() => {
+    setIsTyping(true);
+    const blinkTimeout = setTimeout(() => {
+      setIsTyping(false);
+    }, 500);
+
+    return () => clearTimeout(blinkTimeout);
+  }, [charStates, currentWordIndex]);
+
+  useEffect(() => {
+    const updatePosition = () => {
+      if (activeCharRef.current) {
+        const charEl = activeCharRef.current;
+        setCursorCoords({
+          left: isAtEnd ? (charEl.offsetLeft + charEl.offsetWidth) : charEl.offsetLeft,
+          top: charEl.offsetTop,
+          height: charEl.offsetHeight,
+        });
+      }
+    };
+
+    updatePosition();
+    
+    // Set a tiny timeout to ensure webfont and layout are fully calculated
+    const timer = setTimeout(updatePosition, 100);
+
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      clearTimeout(timer);
+    };
+  }, [charStates, currentWordIndex, isAtEnd]);
   
   return (
     <div 
-      className="text-justify leading-relaxed text-lg sm:text-xl md:text-2xl font-['JetBrains_Mono',_monospace] w-full"
+      className="relative text-justify leading-relaxed text-lg sm:text-xl md:text-2xl font-['JetBrains_Mono',_monospace] w-full"
       style={{ textAlignLast: 'left', textJustify: 'inter-word' }}
     >
+      {/* GPU-Accelerated Sliding Cursor */}
+      {cursorCoords && (
+        <span 
+          className={`
+            absolute left-0 top-0 w-[2.5px] rounded-full z-10
+            transition-all duration-[95ms] cubic-bezier(0.1, 0.9, 0.2, 1)
+            ${cursorStyle.cursor}
+            ${cursorStyle.shadow}
+            ${isTyping ? '' : 'animate-blink'}
+          `}
+          style={{
+            transform: `translate(${cursorCoords.left - 1}px, ${cursorCoords.top - 1}px)`,
+            height: `${cursorCoords.height + 2}px`,
+          }}
+        />
+      )}
+
       {words.map((word, index) => {
         const isActive = index === currentWordIndex;
         return (
@@ -95,6 +164,8 @@ const WordDisplay = React.memo(function WordDisplay({
             <WordRow
               charStates={charStates[index] || []}
               isDark={isDark}
+              activeCharRef={isActive ? activeCharRef : undefined}
+              isAtEnd={isActive ? isAtEnd : false}
             />
           </span>
         );
