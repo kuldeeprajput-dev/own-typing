@@ -1,63 +1,262 @@
+<div align="center">
+
 # OwnType
 
-OwnType is a focused typing-speed test built with Next.js. It measures words per minute, raw speed, accuracy, and errors while keeping the interaction responsive enough for fast typists.
+### A Minimal, High-Performance Typing Speed Test
+
+**Measure your WPM · Track your accuracy · Improve over time**
+
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
+
+<br />
+
+[**Live Demo →**](#) · [Report Bug](../../issues) · [Request Feature](../../issues)
+
+</div>
+
+<br />
+
+## Screenshots
+
+<div align="center">
+
+<table>
+<tr>
+<td width="50%"><strong>Dark Mode</strong></td>
+<td width="50%"><strong>Light Mode</strong></td>
+</tr>
+<tr>
+<td><img src="public/readme/dark-theme.png" alt="OwnType Dark Theme" width="100%" /></td>
+<td><img src="public/readme/light-theme.png" alt="OwnType Light Theme" width="100%" /></td>
+</tr>
+</table>
+
+<br />
+
+<table>
+<tr>
+<td width="50%"><strong>Results Dashboard</strong></td>
+<td width="50%"><strong>Performance History</strong></td>
+</tr>
+<tr>
+<td><img src="public/readme/result.png" alt="OwnType Results Dashboard" width="100%" /></td>
+<td><img src="public/readme/history.png" alt="OwnType Performance History" width="100%" /></td>
+</tr>
+</table>
+
+</div>
+
+<br />
+
+---
 
 ## Features
 
-- 15, 30, and 60 second tests
-- Optional punctuation, numbers, and capital letters
-- Live WPM, accuracy, and countdown stats
-- Six keyboard themes with light and dark modes
-- Optional key sounds, haptics, and virtual keyboard
-- Local result history and performance chart
-- Installable web-app manifest and social sharing metadata
+<table>
+<tr>
+<td width="50%">
 
-## Run locally
+### Core Typing Test
+- **15s, 30s, 60s** timed test modes
+- Real-time **WPM**, **accuracy**, and **countdown** display
+- Smooth sliding cursor with per-theme styling
+- Smart word wrapping with overflow handling
+
+</td>
+<td width="50%">
+
+### Themes & Customization
+- **6 curated keyboard themes** — Classic, Mint, Royal, Dolch, Sand, Scarlet
+- **Light & Dark** mode toggle for each theme
+- Interactive virtual keyboard with key-highlighting
+- Monospaced JetBrains Mono typography
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### Results & Analytics
+- Post-test **performance dashboard** with WPM chart
+- Raw WPM vs Net WPM comparison over time
+- Detailed stats: characters, errors, test type, accuracy
+- **Performance history** modal with best/avg WPM & accuracy trends
+
+</td>
+<td width="50%">
+
+### Advanced Options
+- Toggle **punctuation**, **capitals**, and **numbers**
+- Configurable keyboard **sound effects** & **volume**
+- Haptic feedback support for mobile
+- **Installable PWA** — add to home screen on any device
+
+</td>
+</tr>
+</table>
+
+<br />
+
+## Tech Stack
+
+| Technology | Purpose |
+|:--|:--|
+| [Next.js 16](https://nextjs.org/) | React framework with App Router |
+| [React 19](https://react.dev/) | UI rendering with concurrent features |
+| [TypeScript 5](https://www.typescriptlang.org/) | Type-safe development |
+| [Tailwind CSS 4](https://tailwindcss.com/) | Utility-first styling |
+| LocalStorage API | Persist settings, themes & test history |
+
+<br />
+
+## Getting Started
+
+### Prerequisites
+
+- **Node.js** 18+ or **Bun** runtime
+- **npm**, **yarn**, **pnpm**, or **bun** package manager
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/your-username/own-type.git
+cd own-type
+
+# Install dependencies
 npm install
+# or
+bun install
+
+# Start the development server
 npm run dev
+# or
+bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-Useful commands:
+### Available Scripts
+
+| Command | Description |
+|:--|:--|
+| `npm run dev` | Start development server with hot reload |
+| `npm run build` | Create optimized production build |
+| `npm run start` | Serve the production build locally |
+| `npm run lint` | Run ESLint for code quality checks |
+| `npm run typecheck` | Run TypeScript compiler checks |
+
+<br />
+
+## Project Structure
+
+```
+own-type/
+├── app/                    # Next.js App Router
+│   ├── layout.tsx          # Root layout with font & providers
+│   ├── page.tsx            # Home page shell
+│   ├── site-config.ts      # SEO metadata & URL resolution
+│   ├── manifest.ts         # PWA web app manifest
+│   ├── robots.ts           # Search engine crawl rules
+│   └── sitemap.ts          # Auto-generated sitemap
+│
+├── components/             # React UI components
+│   ├── TypingTest.tsx       # Main orchestrator component
+│   ├── WordDisplay.tsx      # Word rendering with sliding cursor
+│   ├── ModeSelector.tsx     # Navbar with timer/mode controls
+│   ├── Stats.tsx            # Live WPM, accuracy & timer display
+│   ├── ResultsDashboard.tsx # Post-test results with SVG chart
+│   ├── HistoryModal.tsx     # Performance history with trend graph
+│   ├── VirtualKeyboard.tsx  # Interactive on-screen keyboard
+│   └── KeyboardSettingsModal.tsx # Theme & sound preferences
+│
+├── hooks/
+│   └── useTypingEngine.ts   # Core engine: timer, input, counters
+│
+├── context/
+│   └── KeyboardSettingsContext.tsx # Persisted user preferences
+│
+├── utils/                   # Pure utility functions
+│   ├── wordGenerator.ts     # Word pool with punctuation/caps/numbers
+│   ├── statistics.ts        # WPM & accuracy calculations
+│   └── localStorage.ts      # Type-safe storage helpers
+│
+├── types/                   # Shared TypeScript interfaces
+├── styles/                  # Global CSS & Tailwind config
+└── public/                  # Static assets & favicons
+```
+
+<br />
+
+## How It Works
+
+The typing engine (`useTypingEngine`) is designed for **zero-lag input handling**:
+
+1. **Incremental Counters** — Character states update on every keystroke without re-measuring layout
+2. **GPU-Accelerated Cursor** — The caret is positioned via CSS transforms attached directly to the active character element
+3. **Efficient Timer** — The countdown publishes once per visible second, not on every frame
+4. **Smart Overflow** — Words scroll into view as you type, with the active word always visible
+5. **10-Character Error Cap** — Extra wrong characters are limited to 10 per word, matching competitive typing test standards
+
+<br />
+
+## Deployment
+
+### Vercel (Recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/own-type)
+
+Vercel auto-detects `VERCEL_PROJECT_PRODUCTION_URL` for canonical URLs, sitemap, and social metadata.
+
+### Other Hosts
+
+Set the `NEXT_PUBLIC_SITE_URL` environment variable:
 
 ```bash
-npm run lint
-npm run build
-npm run start
+NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 ```
 
-## Production URL
+<br />
 
-Vercel deployments use `VERCEL_PROJECT_PRODUCTION_URL` automatically. On other hosts, set `NEXT_PUBLIC_SITE_URL` to the deployed origin so canonical links, the sitemap, robots metadata, and structured data use the correct URL.
+## Privacy
 
-```bash
-NEXT_PUBLIC_SITE_URL=https://example.com
-```
+OwnType respects your privacy:
 
-When no deployment URL is available, or the value is invalid, the app falls back to `http://localhost:3000` for local development.
+- **No accounts** — no sign-up or login required
+- **No server calls** — all test data stays in your browser
+- **LocalStorage only** — typing history and preferences are stored locally
+- **No tracking** — zero analytics or third-party scripts
 
-## Project structure
+<br />
 
-- `app/` — page shell, metadata, manifest, robots, and sitemap
-- `components/` — typing interface, keyboard, settings, history, and results
-- `hooks/useTypingEngine.ts` — timer, input transitions, counters, and test state
-- `context/KeyboardSettingsContext.tsx` — persisted display and feedback preferences
-- `utils/` — word generation, statistics, and local storage helpers
-- `public/` — favicon set, social preview, and the keyboard sound sprite
+## Contributing
 
-The typing engine keeps counters incrementally and publishes the timer once per visible second. The caret is attached directly to the active character, so typing does not trigger layout measurement on every key.
+Contributions are welcome! Here's how:
 
-## Replacing temporary brand assets
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
 
-The current favicon set and `public/og-preview.jpg` are temporary. Replace the files in `public/` while keeping the same names and dimensions:
+<br />
 
-- `favicon-16x16.png` and `favicon-32x32.png`
-- `apple-touch-icon.png` at 180×180
-- `own-type-icon-192.png` at 192×192
-- `own-type-favicon-512.png` at 512×512
-- `og-preview.jpg` at 1200×630
+## License
 
-Typing history and preferences stay in the browser's local storage; the app does not send test results to a server.
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+<br />
+
+---
+
+<div align="center">
+
+**Built for typists who care about speed**
+
+⭐ Star this repo if you found it useful!
+
+</div>
