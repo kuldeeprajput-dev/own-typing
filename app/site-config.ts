@@ -1,27 +1,25 @@
+const PRODUCTION_SITE_URL = "https://owntyping.vercel.app";
 const LOCAL_SITE_URL = "http://localhost:3000";
 
 function resolveSiteUrl() {
+  // Always use production URL for production build metadata and SEO, fallback to localhost only in development env if explicit config is absent
   const explicitUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   const vercelHost = (
     process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL
   )?.trim();
-  const configuredUrl = explicitUrl || (vercelHost ? `https://${vercelHost}` : "");
-
-  if (!configuredUrl) {
-    return new URL(LOCAL_SITE_URL);
-  }
+  
+  const configuredUrl = explicitUrl || (vercelHost ? `https://${vercelHost}` : PRODUCTION_SITE_URL);
 
   try {
     const url = new URL(configuredUrl);
-
     if (url.protocol === "http:" || url.protocol === "https:") {
       return url;
     }
   } catch {
-    // Fall through to the local URL when the environment value is malformed.
+    // Fall back to production domain if something goes wrong
   }
 
-  return new URL(LOCAL_SITE_URL);
+  return new URL(PRODUCTION_SITE_URL);
 }
 
 export const siteConfig = {
