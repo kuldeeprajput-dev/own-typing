@@ -194,16 +194,19 @@ export default function HistoryModal({ isOpen, onClose, isDark = true }: History
   const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   useEffect(() => {
-    if (isOpen) {
-      const stored = localStorage.getItem('owntype_results_history');
-      if (stored) {
-        try {
-          setHistory(JSON.parse(stored));
-        } catch (e) {
-          console.error(e);
-        }
+    if (!isOpen) return;
+
+    const frame = requestAnimationFrame(() => {
+      try {
+        const stored = localStorage.getItem('owntype_results_history');
+        const parsed = stored ? JSON.parse(stored) : [];
+        setHistory(Array.isArray(parsed) ? parsed : []);
+      } catch {
+        setHistory([]);
       }
-    }
+    });
+
+    return () => cancelAnimationFrame(frame);
   }, [isOpen]);
 
   if (!isOpen) return null;
