@@ -2,13 +2,38 @@
 
 import React from "react";
 import { TestMode, TestOptions } from "@/types";
+
 interface ModeSelectorProps {
   mode: TestMode;
   options: TestOptions;
   onModeChange: (mode: TestMode) => void;
   onOptionsChange: (options: Partial<TestOptions>) => void;
+  onKeyboardSettingsClick: () => void;
   isDark?: boolean;
 }
+
+const KeyboardIcon = () => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="15" 
+    height="15" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2.2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+  >
+    <rect width="20" height="12" x="2" y="6" rx="2" />
+    <path d="M6 10h.01" />
+    <path d="M10 10h.01" />
+    <path d="M14 10h.01" />
+    <path d="M18 10h.01" />
+    <path d="M6 14h.01" />
+    <path d="M18 14h.01" />
+    <path d="M10 14h4" />
+  </svg>
+);
 
 const modes: TestMode[] = [15, 30, 60];
 
@@ -17,6 +42,7 @@ const ModeSelector = React.memo(function ModeSelector({
   options,
   onModeChange,
   onOptionsChange,
+  onKeyboardSettingsClick,
   isDark = true,
 }: ModeSelectorProps) {
   return (
@@ -79,6 +105,21 @@ const ModeSelector = React.memo(function ModeSelector({
                 )}
               </button>
             ))}
+            
+            <div className={`w-px h-5 my-auto mx-1 ${isDark ? 'bg-zinc-800' : 'bg-zinc-200'}`} />
+            
+            <button
+              onClick={onKeyboardSettingsClick}
+              className={`
+                group/btn relative px-2.5 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300
+                ${isDark ? 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'}
+              `}
+            >
+              <span className="flex items-center gap-1.5 sm:gap-2">
+                <KeyboardIcon />
+                <span className="uppercase text-[10px] sm:text-xs tracking-wider">KEYBOARD SETTINGS</span>
+              </span>
+            </button>
           </div>
         </div>
       </div>

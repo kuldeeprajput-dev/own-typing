@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useKeyboardSettings } from '@/context/KeyboardSettingsContext';
 
 interface KeyConfig {
   code: string;
@@ -397,8 +398,38 @@ const initAudio = async () => {
   }
 };
 
+const triggerHaptic = () => {
+  if (typeof window !== 'undefined' && navigator.vibrate) {
+    try {
+      const saved = localStorage.getItem('keyboard-settings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.enableHaptics === false) {
+          return;
+        }
+      }
+      navigator.vibrate(15);
+    } catch {}
+  }
+};
+
 export const playSound = (code: string, type: 'down' | 'up') => {
   if (typeof window === 'undefined') return;
+  
+  try {
+    const saved = localStorage.getItem('keyboard-settings');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.enableSound === false) {
+        return;
+      }
+    }
+  } catch {}
+
+  if (type === 'down') {
+    triggerHaptic();
+  }
+
   if (!audioCtx || !audioBuffer) {
     initAudio();
     return;
@@ -426,6 +457,19 @@ export const playSound = (code: string, type: 'down' | 'up') => {
 
 export const playErrorSound = () => {
   if (typeof window === 'undefined') return;
+  
+  try {
+    const saved = localStorage.getItem('keyboard-settings');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.enableSound === false) {
+        return;
+      }
+    }
+  } catch {}
+
+  triggerHaptic();
+
   try {
     const AudioContextClass = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     const ctx = audioCtx || (AudioContextClass ? new AudioContextClass() : null);
@@ -477,8 +521,57 @@ const isTypingKey = (code: string): boolean => {
   );
 };
 
+const themeChassisMap = {
+  Classic: { wrapper: 'bg-black/70 border-black', inner: 'bg-black/80 border-black' },
+  Mint: { wrapper: 'bg-[#0e211e]/70 border-[#183934]', inner: 'bg-[#132c28]/80 border-[#183934]' },
+  Royal: { wrapper: 'bg-[#0a0f1d]/70 border-[#1e293b]', inner: 'bg-[#0f172a]/80 border-[#1e293b]' },
+  Dolch: { wrapper: 'bg-[#1c1c1c]/70 border-[#333333]', inner: 'bg-[#242424]/80 border-[#333333]' },
+  Sand: { wrapper: 'bg-[#1f1a14]/70 border-[#3e3427]', inner: 'bg-[#2a241c]/80 border-[#3e3427]' },
+  Scarlet: { wrapper: 'bg-[#1e0a0a]/70 border-[#3d1414]', inner: 'bg-[#2c0f0f]/80 border-[#3d1414]' },
+};
+
+const themeKeysMap = {
+  Classic: {
+    light: { base: 'rgba(245, 245, 245, 0.8)', inner: 'rgb(245, 245, 245)', text: 'rgba(0, 0, 0, 0.7)' },
+    orange: { base: 'rgba(245, 118, 68, 0.8)', inner: 'rgb(245, 118, 68)', text: 'rgba(0, 0, 0, 0.5)' },
+    dark: { base: 'rgba(115, 115, 115, 0.8)', inner: 'rgb(115, 115, 115)', text: 'rgba(255, 255, 255, 0.7)' },
+    pressed: { base: 'rgba(245, 158, 11, 0.6)', inner: 'rgb(245, 158, 11)', text: 'rgba(0, 0, 0, 0.9)', border: 'border-amber-600/50' }
+  },
+  Mint: {
+    light: { base: 'rgba(209, 250, 229, 0.8)', inner: 'rgb(209, 250, 229)', text: 'rgba(6, 78, 59, 0.8)' },
+    orange: { base: 'rgba(52, 211, 153, 0.8)', inner: 'rgb(52, 211, 153)', text: 'rgba(6, 78, 59, 0.7)' },
+    dark: { base: 'rgba(75, 85, 99, 0.8)', inner: 'rgb(75, 85, 99)', text: 'rgba(209, 250, 229, 0.8)' },
+    pressed: { base: 'rgba(5, 150, 105, 0.6)', inner: 'rgb(5, 150, 105)', text: 'rgba(255, 255, 255, 0.9)', border: 'border-emerald-600/50' }
+  },
+  Royal: {
+    light: { base: 'rgba(219, 234, 254, 0.8)', inner: 'rgb(219, 234, 254)', text: 'rgba(30, 58, 138, 0.8)' },
+    orange: { base: 'rgba(59, 130, 246, 0.8)', inner: 'rgb(59, 130, 246)', text: 'rgba(255, 255, 255, 0.8)' },
+    dark: { base: 'rgba(71, 85, 105, 0.8)', inner: 'rgb(71, 85, 105)', text: 'rgba(219, 234, 254, 0.8)' },
+    pressed: { base: 'rgba(245, 158, 11, 0.6)', inner: 'rgb(245, 158, 11)', text: 'rgba(0, 0, 0, 0.9)', border: 'border-amber-600/50' }
+  },
+  Dolch: {
+    light: { base: 'rgba(156, 163, 175, 0.8)', inner: 'rgb(156, 163, 175)', text: 'rgba(17, 24, 39, 0.8)' },
+    orange: { base: 'rgba(6, 182, 212, 0.8)', inner: 'rgb(6, 182, 212)', text: 'rgba(17, 24, 39, 0.8)' },
+    dark: { base: 'rgba(75, 85, 99, 0.8)', inner: 'rgb(75, 85, 99)', text: 'rgba(243, 244, 246, 0.8)' },
+    pressed: { base: 'rgba(14, 165, 233, 0.6)', inner: 'rgb(14, 165, 233)', text: 'rgba(255, 255, 255, 0.9)', border: 'border-cyan-600/50' }
+  },
+  Sand: {
+    light: { base: 'rgba(245, 245, 220, 0.8)', inner: 'rgb(245, 245, 220)', text: 'rgba(67, 56, 42, 0.8)' },
+    orange: { base: 'rgba(168, 85, 24, 0.8)', inner: 'rgb(168, 85, 24)', text: 'rgba(255, 255, 255, 0.8)' },
+    dark: { base: 'rgba(120, 113, 108, 0.8)', inner: 'rgb(120, 113, 108)', text: 'rgba(245, 245, 220, 0.8)' },
+    pressed: { base: 'rgba(220, 38, 38, 0.6)', inner: 'rgb(220, 38, 38)', text: 'rgba(255, 255, 255, 0.9)', border: 'border-red-600/50' }
+  },
+  Scarlet: {
+    light: { base: 'rgba(255, 228, 230, 0.8)', inner: 'rgb(255, 228, 230)', text: 'rgba(136, 19, 55, 0.8)' },
+    orange: { base: 'rgba(239, 68, 68, 0.8)', inner: 'rgb(239, 68, 68)', text: 'rgba(255, 255, 255, 0.8)' },
+    dark: { base: 'rgba(159, 18, 57, 0.8)', inner: 'rgb(159, 18, 57)', text: 'rgba(255, 228, 230, 0.8)' },
+    pressed: { base: 'rgba(245, 158, 11, 0.6)', inner: 'rgb(245, 158, 11)', text: 'rgba(0, 0, 0, 0.9)', border: 'border-amber-600/50' }
+  }
+};
+
 export default function VirtualKeyboard() {
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+  const { settings } = useKeyboardSettings();
 
   useEffect(() => {
     initAudio();
@@ -488,7 +581,6 @@ export default function VirtualKeyboard() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
       let code = e.code;
-      // Normalise code where needed (e.g. NumpadEnter to Enter)
       if (code === 'NumpadEnter') code = 'Enter';
       
       if (!isTypingKey(code)) {
@@ -519,8 +611,8 @@ export default function VirtualKeyboard() {
       setPressedKeys(new Set());
     };
 
-    window.addEventListener('keydown', handleKeyDown, { passive: true });
-    window.addEventListener('keyup', handleKeyUp, { passive: true });
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
     window.addEventListener('blur', handleBlur);
 
     return () => {
@@ -530,12 +622,17 @@ export default function VirtualKeyboard() {
     };
   }, []);
 
+  if (!settings.displayKeyboard) return null;
+
+  const chassis = themeChassisMap[settings.theme] || themeChassisMap.Classic;
+  const keyTheme = themeKeysMap[settings.theme] || themeKeysMap.Classic;
+
   return (
     <div className="w-full overflow-x-auto flex justify-center py-6 select-none no-scrollbar">
       {/* Keyboard wrapper scaling for responsive widths */}
       <div className="scale-[0.6] origin-top sm:scale-[0.8] md:scale-95 lg:scale-100 my-[-55px] sm:my-[-25px] md:my-[-5px] lg:my-0 transition-transform duration-300">
-        <div className="bg-black/70 border-2 border-black p-3 rounded-[16px] w-fit h-fit shadow-2xl">
-          <div className="bg-black/80 border border-black rounded-[5px] rounded-t-[8px] h-[278px] overflow-hidden">
+        <div className={`p-3 rounded-[16px] w-fit h-fit shadow-2xl border-2 transition-all duration-350 ${chassis.wrapper}`}>
+          <div className={`rounded-[5px] rounded-t-[8px] h-[278px] overflow-hidden border transition-all duration-350 ${chassis.inner}`}>
             <div className="-space-y-1 -translate-y-1 rounded-[5px] overflow-hidden">
               {allRows.map((row, rowIndex) => (
                 <div key={rowIndex} className="flex">
@@ -544,27 +641,27 @@ export default function VirtualKeyboard() {
                     const innerWidth = key.width - 13;
 
                     // Compute styles based on key type and pressed state
-                    let baseBg = 'rgba(245, 245, 245, 0.8)';
-                    let innerBg = 'rgb(245, 245, 245)';
-                    let textColor = 'rgba(0, 0, 0, 0.7)';
+                    let baseBg = keyTheme.light.base;
+                    let innerBg = keyTheme.light.inner;
+                    let textColor = keyTheme.light.text;
                     let borderInner = 'border-black/40';
 
                     if (key.type === 'orange') {
-                      baseBg = 'rgba(245, 118, 68, 0.8)';
-                      innerBg = 'rgb(245, 118, 68)';
-                      textColor = 'rgba(0, 0, 0, 0.5)';
+                      baseBg = keyTheme.orange.base;
+                      innerBg = keyTheme.orange.inner;
+                      textColor = keyTheme.orange.text;
                     } else if (key.type === 'dark') {
-                      baseBg = 'rgba(115, 115, 115, 0.8)';
-                      innerBg = 'rgb(115, 115, 115)';
-                      textColor = 'rgba(255, 255, 255, 0.7)';
+                      baseBg = keyTheme.dark.base;
+                      innerBg = keyTheme.dark.inner;
+                      textColor = keyTheme.dark.text;
                     }
 
-                    // Apply pressed styles (amber accent)
+                    // Apply pressed styles
                     if (isPressed) {
-                      baseBg = 'rgba(245, 158, 11, 0.6)';
-                      innerBg = 'rgb(245, 158, 11)';
-                      textColor = 'rgba(0, 0, 0, 0.9)';
-                      borderInner = 'border-amber-600/50';
+                      baseBg = keyTheme.pressed.base;
+                      innerBg = keyTheme.pressed.inner;
+                      textColor = keyTheme.pressed.text;
+                      borderInner = keyTheme.pressed.border;
                     }
 
                     return (

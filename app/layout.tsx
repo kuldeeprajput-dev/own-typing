@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "@/styles/globals.css";
+import { KeyboardSettingsProvider } from "@/context/KeyboardSettingsContext";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
@@ -22,7 +23,11 @@ export default function RootLayout({
       <head>
         <title>OwnType</title>
       </head>
-      <body className="h-full overflow-hidden flex flex-col bg-[#0f0f0f] font-mono">{children}</body>
+      <body className="h-full overflow-hidden flex flex-col bg-[#0f0f0f] font-mono">
+        <KeyboardSettingsProvider>
+          {children}
+        </KeyboardSettingsProvider>
+      </body>
     </html>
   );
 }

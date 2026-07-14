@@ -8,10 +8,12 @@ import Stats from './Stats';
 import WordDisplay from './WordDisplay';
 import ThemeToggle from './ThemeToggle';
 import VirtualKeyboard from './VirtualKeyboard';
+import KeyboardSettingsModal from './KeyboardSettingsModal';
 
 export default function TypingTest() {
   const [isFocused, setIsFocused] = useState(false);
   const [isDark, setIsDark] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -84,6 +86,12 @@ export default function TypingTest() {
       onClick={() => inputRef.current?.focus()}
     >
       <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+      
+      <KeyboardSettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        isDark={isDark} 
+      />
 
       <div className={`transition-all duration-300 ${status === 'running' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         <ModeSelector 
@@ -91,6 +99,7 @@ export default function TypingTest() {
           options={options}
           onModeChange={handleModeChange} 
           onOptionsChange={handleOptionsChange}
+          onKeyboardSettingsClick={() => setIsSettingsOpen(true)}
           isDark={isDark} 
         />
       </div>
