@@ -40,3 +40,20 @@ body {
 .animate-blink {
   animation: blink 1s step-end infinite;
 }
+
+.rotate-70 {
+  transform: rotate(70deg);
+}
+
+.-rotate-70 {
+  transform: rotate(-70deg);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

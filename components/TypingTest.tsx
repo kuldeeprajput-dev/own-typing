@@ -7,16 +7,12 @@ import ModeSelector from './ModeSelector';
 import Stats from './Stats';
 import WordDisplay from './WordDisplay';
 import ThemeToggle from './ThemeToggle';
+import VirtualKeyboard from './VirtualKeyboard';
 
 export default function TypingTest() {
   const [isFocused, setIsFocused] = useState(false);
   const [isDark, setIsDark] = useState(true);
-  const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const {
     charStates,
@@ -81,14 +77,6 @@ export default function TypingTest() {
     restart();
     inputRef.current?.focus();
   }, [restart, inputRef]);
-
-  if (!mounted) {
-    return (
-      <div className={`flex flex-col items-center justify-center min-h-screen p-4 transition-colors duration-300 ${isDark ? 'bg-[#0f0f0f] text-zinc-100' : 'bg-gray-100 text-gray-900'}`}>
-        <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
-      </div>
-    );
-  }
 
   return (
     <div 
@@ -168,6 +156,10 @@ export default function TypingTest() {
           Restart
         </button>
       )}
+
+      <div className="mt-8 w-full flex justify-center">
+        <VirtualKeyboard />
+      </div>
     </div>
   );
 }

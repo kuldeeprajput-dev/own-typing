@@ -21,12 +21,9 @@ export function computeStats(
   // Calculate correct characters for WPM (including spaces)
   // We count words that are fully correct or partial correct
   charStates.forEach((wordChars, wordIdx) => {
-    let wordIsCorrect = true;
     wordChars.forEach((char) => {
       if (char.status === 'correct') {
         correctChars++;
-      } else if (char.status === 'incorrect') {
-        wordIsCorrect = false;
       }
     });
     
