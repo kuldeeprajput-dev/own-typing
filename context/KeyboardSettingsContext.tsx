@@ -1,6 +1,14 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { flushSync } from 'react-dom';
 
 export type KeyboardTheme = 'Classic' | 'Mint' | 'Royal' | 'Dolch' | 'Sand' | 'Scarlet';
@@ -26,41 +34,67 @@ const defaultSettings: KeyboardSettings = {
   isDark: true,
 };
 
+const keyboardThemes: KeyboardTheme[] = [
+  'Classic',
+  'Mint',
+  'Royal',
+  'Dolch',
+  'Sand',
+  'Scarlet',
+];
+
 const KeyboardSettingsContext = createContext<KeyboardSettingsContextType | undefined>(undefined);
+
+function readSavedSettings(): KeyboardSettings | null {
+  try {
+    const saved = localStorage.getItem('keyboard-settings');
+    if (!saved) return null;
+
+    const parsed = JSON.parse(saved) as Partial<KeyboardSettings>;
+    return {
+      ...defaultSettings,
+      ...parsed,
+      theme: parsed.theme && keyboardThemes.includes(parsed.theme)
+        ? parsed.theme
+        : defaultSettings.theme,
+    };
+  } catch {
+    return null;
+  }
+}
 
 export function KeyboardSettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<KeyboardSettings>(defaultSettings);
-  const [mounted, setMounted] = useState(false);
+  const settingsRef = useRef(settings);
   const activeTransitionRef = useRef<ViewTransition | null>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('keyboard-settings');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setTimeout(() => {
-          setSettings(parsed);
-        }, 0);
-      } catch (e) {
-        console.error('Failed to parse keyboard settings', e);
-      }
-    }
-    const timeout = setTimeout(() => {
-      setMounted(true);
-    }, 0);
-    return () => clearTimeout(timeout);
+    const frame = requestAnimationFrame(() => {
+      const savedSettings = readSavedSettings();
+      if (!savedSettings) return;
+
+      settingsRef.current = savedSettings;
+      setSettings(savedSettings);
+    });
+
+    return () => cancelAnimationFrame(frame);
   }, []);
 
-  const updateSettings = (newSettings: Partial<KeyboardSettings>) => {
-    const isThemeChanging = newSettings.theme !== undefined && newSettings.theme !== settings.theme;
-    const isDarkChanging = newSettings.isDark !== undefined && newSettings.isDark !== settings.isDark;
+  const updateSettings = useCallback((newSettings: Partial<KeyboardSettings>) => {
+    const current = settingsRef.current;
+    const next = { ...current, ...newSettings };
+    const isThemeChanging = next.theme !== current.theme;
+    const isDarkChanging = next.isDark !== current.isDark;
 
     const applySettings = () => {
-      setSettings((prev) => {
-        const updated = { ...prev, ...newSettings };
-        localStorage.setItem('keyboard-settings', JSON.stringify(updated));
-        return updated;
-      });
+      settingsRef.current = next;
+      setSettings(next);
+
+      try {
+        localStorage.setItem('keyboard-settings', JSON.stringify(next));
+      } catch {
+        // Private browsing and strict storage policies can reject writes.
+      }
     };
 
     const startViewTransition = document.startViewTransition?.bind(document);
@@ -89,15 +123,15 @@ export function KeyboardSettingsProvider({ children }: { children: React.ReactNo
         document.documentElement.classList.remove('theme-transitioning');
       }
     });
-  };
+  }, []);
 
-  // Prevent hydration mismatch
-  if (!mounted) {
-    return <>{children}</>;
-  }
+  const value = useMemo(
+    () => ({ settings, updateSettings }),
+    [settings, updateSettings],
+  );
 
   return (
-    <KeyboardSettingsContext.Provider value={{ settings, updateSettings }}>
+    <KeyboardSettingsContext.Provider value={value}>
       {children}
     </KeyboardSettingsContext.Provider>
   );
