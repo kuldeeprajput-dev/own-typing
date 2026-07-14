@@ -631,8 +631,8 @@ export default function VirtualKeyboard() {
     <div className="w-full overflow-x-auto flex justify-center py-6 select-none no-scrollbar">
       {/* Keyboard wrapper scaling for responsive widths */}
       <div className="scale-[0.6] origin-top sm:scale-[0.8] md:scale-95 lg:scale-100 my-[-55px] sm:my-[-25px] md:my-[-5px] lg:my-0 transition-transform duration-300">
-        <div className={`p-3 rounded-[16px] w-fit h-fit shadow-2xl border-2 transition-all duration-350 ${chassis.wrapper}`}>
-          <div className={`rounded-[5px] rounded-t-[8px] h-[278px] overflow-hidden border transition-all duration-350 ${chassis.inner}`}>
+        <div className={`p-3 rounded-[16px] w-fit h-fit shadow-2xl border-2 transition-all duration-500 ease-in-out ${chassis.wrapper}`}>
+          <div className={`rounded-[5px] rounded-t-[8px] h-[278px] overflow-hidden border transition-all duration-500 ease-in-out ${chassis.inner}`}>
             <div className="-space-y-1 -translate-y-1 rounded-[5px] overflow-hidden">
               {allRows.map((row, rowIndex) => (
                 <div key={rowIndex} className="flex">
@@ -704,19 +704,21 @@ export default function VirtualKeyboard() {
                         }}
                       >
                         <div
-                          className="relative overflow-hidden h-[50px] rounded-[4px] rounded-t-[12px] border border-black/40 flex items-start justify-center transition-all duration-100"
+                          className="relative overflow-hidden h-[50px] rounded-[4px] rounded-t-[12px] border border-black/40 flex items-start justify-center"
                           style={{
                             width: `${key.width}px`,
                             backgroundColor: baseBg,
+                            transition: 'background-color 500ms ease-in-out, border-color 500ms ease-in-out',
                           }}
                         >
                           <div
-                            className={`relative z-10 h-[37px] rounded-[6px] border border-t-0 ${borderInner} transition-all duration-100 text-[9px] font-semibold flex flex-col items-center justify-between p-1 select-none`}
+                            className={`relative z-10 h-[37px] rounded-[6px] border border-t-0 ${borderInner} text-[9px] font-semibold flex flex-col items-center justify-between p-1 select-none`}
                             style={{
                               width: `${innerWidth}px`,
                               backgroundColor: innerBg,
                               color: textColor,
                               transform: isPressed ? 'translateY(5px)' : 'translateY(0px)',
+                              transition: 'background-color 500ms ease-in-out, color 500ms ease-in-out, border-color 500ms ease-in-out, transform 75ms ease-out',
                             }}
                           >
                             {/* Render different labels depending on whether subLabel or icon exists */}
