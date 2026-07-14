@@ -471,7 +471,7 @@ export default function TypingTest() {
       </div>
 
       <div
-        className="pointer-events-none fixed inset-x-0 bottom-5 z-20 flex items-center justify-center gap-3 font-['JetBrains_Mono',_monospace] text-sm sm:bottom-6"
+        className="pointer-events-none fixed inset-x-0 bottom-5 z-20 flex items-center justify-center gap-3 font-['JetBrains_Mono',_monospace] text-sm sm:bottom-6 mobile-hide"
         aria-hidden="true"
       >
         <kbd

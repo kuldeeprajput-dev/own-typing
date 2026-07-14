@@ -124,3 +124,9 @@ button:focus-visible {
     animation: none !important;
   }
 }
+
+@media (max-width: 768px), (pointer: coarse) {
+  .mobile-hide {
+    display: none !important;
+  }
+}
