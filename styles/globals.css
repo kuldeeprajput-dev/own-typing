@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0f0f0f;
+  --foreground: #f4f4f5;
+  color-scheme: dark light;
 }
 
 @theme inline {
@@ -11,17 +12,40 @@
   --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #fafafa;
+    --foreground: #18181b;
   }
 }
 
+html {
+  min-height: 100%;
+  background: var(--background);
+}
+
 body {
+  min-height: 100dvh;
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-mono), monospace;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 3px;
+}
+
+::selection {
+  background: rgb(245 158 11 / 28%);
+  color: inherit;
 }
 
 @keyframes blink {
@@ -33,10 +57,7 @@ body {
   }
 }
 
-.cursor-blink {
-  animation: blink 1s step-end infinite;
-}
-
+.cursor-blink,
 .animate-blink {
   animation: blink 1s step-end infinite;
 }
@@ -86,4 +107,20 @@ body {
 .theme-transitioning *::before,
 .theme-transitioning *::after {
   transition-duration: 0s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
 }

@@ -15,6 +15,18 @@ export interface TestOptions {
 
 export type TestStatus = 'idle' | 'running' | 'finished';
 
+export interface TypingCounters {
+  correctChars: number;
+  totalKeystrokes: number;
+  correctKeystrokes: number;
+}
+
+export interface TypingHistoryPoint {
+  second: number;
+  wpm: number;
+  rawWpm: number;
+}
+
 export interface TypingStats {
   wpm: number;
   rawWpm: number;
@@ -22,4 +34,6 @@ export interface TypingStats {
   elapsed: number;
   correctChars: number;
   totalTyped: number;
+  correctKeystrokes: number;
+  errors: number;
 }
