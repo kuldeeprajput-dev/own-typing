@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useKeyboardSettings } from '@/context/KeyboardSettingsContext';
+import { KeyboardTheme, useKeyboardSettings } from '@/context/KeyboardSettingsContext';
 
 interface KeyConfig {
   code: string;
@@ -381,122 +381,203 @@ const KEY_UP_SOUNDS: Record<string, [number, number]> = {
 
 let audioBuffer: AudioBuffer | null = null;
 let audioCtx: AudioContext | null = null;
+let audioInitPromise: Promise<void> | null = null;
 
-const initAudio = async () => {
-  if (typeof window === 'undefined' || audioBuffer) return;
+const feedbackPreferences = {
+  enableSound: true,
+  enableHaptics: true,
+};
+
+const syncFeedbackPreferences = (enableSound: boolean, enableHaptics: boolean) => {
+  feedbackPreferences.enableSound = enableSound;
+  feedbackPreferences.enableHaptics = enableHaptics;
+};
+
+type WindowWithWebkitAudio = Window & {
+  webkitAudioContext?: typeof AudioContext;
+};
+
+const getAudioContext = (): AudioContext | null => {
+  if (typeof window === 'undefined') return null;
+  if (audioCtx && audioCtx.state !== 'closed') return audioCtx;
+
+  const AudioContextClass = window.AudioContext
+    || (window as WindowWithWebkitAudio).webkitAudioContext;
+
+  if (!AudioContextClass) return null;
+  audioCtx = new AudioContextClass({ latencyHint: 'interactive' });
+  return audioCtx;
+};
+
+const isAudioContextRunning = (context: AudioContext) =>
+  context.state === 'running';
+
+const resumeAudioContext = async (context: AudioContext): Promise<boolean> => {
+  if (isAudioContextRunning(context)) return true;
+  if (context.state !== 'suspended') return false;
+
   try {
-    const AudioContextClass = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (AudioContextClass) {
-      audioCtx = new AudioContextClass();
-    }
-    if (!audioCtx) return;
-    const response = await fetch('/sound.ogg');
-    const arrayBuffer = await response.arrayBuffer();
-    audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-  } catch (err) {
-    console.error('Failed to load/decode audio:', err);
+    await context.resume();
+    return isAudioContextRunning(context);
+  } catch {
+    return false;
   }
 };
 
-const triggerHaptic = () => {
-  if (typeof window !== 'undefined' && navigator.vibrate) {
-    try {
-      const saved = localStorage.getItem('keyboard-settings');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.enableHaptics === false) {
-          return;
-        }
-      }
-      navigator.vibrate(15);
-    } catch {}
+const runWhenAudioContextIsReady = (
+  context: AudioContext,
+  play: () => void,
+) => {
+  if (context.state === 'running') {
+    play();
+    return;
   }
+
+  void resumeAudioContext(context).then((isRunning) => {
+    if (isRunning) play();
+  });
+};
+
+const initAudio = (): Promise<void> => {
+  if (typeof window === 'undefined' || audioBuffer) return Promise.resolve();
+  if (audioInitPromise) return audioInitPromise;
+
+  audioInitPromise = (async () => {
+    const context = getAudioContext();
+    if (!context) return;
+
+    const response = await fetch('/sound.ogg');
+    if (!response.ok) {
+      throw new Error(`Unable to load keyboard audio (${response.status})`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    audioBuffer = await context.decodeAudioData(arrayBuffer);
+  })()
+    .catch((error: unknown) => {
+      console.error('Failed to load/decode audio:', error);
+    })
+    .finally(() => {
+      audioInitPromise = null;
+    });
+
+  return audioInitPromise;
+};
+
+const triggerHaptic = () => {
+  if (
+    typeof window === 'undefined'
+    || !feedbackPreferences.enableHaptics
+    || !navigator.vibrate
+  ) return;
+
+  try {
+    navigator.vibrate(10);
+  } catch {
+    // Vibration can be blocked by browser or device policy.
+  }
+};
+
+const playFallbackClick = (context: AudioContext, type: 'down' | 'up') => {
+  runWhenAudioContextIsReady(context, () => {
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const now = context.currentTime;
+
+    oscillator.type = 'triangle';
+    oscillator.frequency.setValueAtTime(type === 'down' ? 180 : 140, now);
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.addEventListener('ended', () => {
+      oscillator.disconnect();
+      gain.disconnect();
+    }, { once: true });
+
+    oscillator.start(now);
+    oscillator.stop(now + 0.03);
+  });
 };
 
 export const playSound = (code: string, type: 'down' | 'up') => {
   if (typeof window === 'undefined') return;
-  
-  try {
-    const saved = localStorage.getItem('keyboard-settings');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.enableSound === false) {
-        return;
-      }
-    }
-  } catch {}
 
   if (type === 'down') {
     triggerHaptic();
   }
 
-  if (!audioCtx || !audioBuffer) {
-    initAudio();
-    return;
-  }
-  
+  if (!feedbackPreferences.enableSound) return;
+
   const map = type === 'down' ? KEY_DOWN_SOUNDS : KEY_UP_SOUNDS;
   const audioInfo = map[code];
   if (!audioInfo) return;
-  
+
+  const context = getAudioContext();
+  if (!context) return;
+
+  if (!audioBuffer) {
+    playFallbackClick(context, type);
+    void initAudio();
+    return;
+  }
+
+  const buffer = audioBuffer;
   const [startMs, durationMs] = audioInfo;
 
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
-  const source = audioCtx.createBufferSource();
-  source.buffer = audioBuffer;
-  
-  const gainNode = audioCtx.createGain();
-  gainNode.gain.value = 0.65; // comfortable keystroke volume
-  
-  source.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-  source.start(0, startMs / 1000, durationMs / 1000);
+  runWhenAudioContextIsReady(context, () => {
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+
+    const gainNode = context.createGain();
+    gainNode.gain.value = 0.65;
+
+    source.connect(gainNode);
+    gainNode.connect(context.destination);
+    source.addEventListener('ended', () => {
+      source.disconnect();
+      gainNode.disconnect();
+    }, { once: true });
+    source.start(context.currentTime, startMs / 1000, durationMs / 1000);
+  });
 };
 
 export const playErrorSound = () => {
   if (typeof window === 'undefined') return;
-  
-  try {
-    const saved = localStorage.getItem('keyboard-settings');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.enableSound === false) {
-        return;
-      }
-    }
-  } catch {}
 
   triggerHaptic();
+  if (!feedbackPreferences.enableSound) return;
 
-  try {
-    const AudioContextClass = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    const ctx = audioCtx || (AudioContextClass ? new AudioContextClass() : null);
-    if (!ctx) return;
-    
-    if (ctx.state === 'suspended') {
-      ctx.resume();
+  const context = getAudioContext();
+  if (!context) return;
+
+  runWhenAudioContextIsReady(context, () => {
+    try {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+
+      oscillator.type = 'sawtooth';
+      oscillator.frequency.setValueAtTime(150, context.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(100, context.currentTime + 0.1);
+
+      gain.gain.setValueAtTime(0.2, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
+
+      oscillator.addEventListener('ended', () => {
+        oscillator.disconnect();
+        gain.disconnect();
+      }, { once: true });
+
+      oscillator.start(context.currentTime);
+      oscillator.stop(context.currentTime + 0.1);
+    } catch (error) {
+      console.error('Audio API error:', error);
     }
-    
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(150, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.1);
-    
-    gain.gain.setValueAtTime(0.2, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-    
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.1);
-  } catch (err) {
-    console.error('Audio API error:', err);
-  }
+  });
 };
 
 const isTypingKey = (code: string): boolean => {
@@ -521,7 +602,20 @@ const isTypingKey = (code: string): boolean => {
   );
 };
 
-const themeChassisMap = {
+interface KeyColors {
+  base: string;
+  inner: string;
+  text: string;
+}
+
+interface KeyTheme {
+  light: KeyColors;
+  orange: KeyColors;
+  dark: KeyColors;
+  pressed: KeyColors & { border: string };
+}
+
+const themeChassisMap: Record<KeyboardTheme, { wrapper: string; inner: string }> = {
   Classic: { wrapper: 'bg-black/70 border-black', inner: 'bg-black/80 border-black' },
   Mint: { wrapper: 'bg-[#0e211e]/70 border-[#183934]', inner: 'bg-[#132c28]/80 border-[#183934]' },
   Royal: { wrapper: 'bg-[#0a0f1d]/70 border-[#1e293b]', inner: 'bg-[#0f172a]/80 border-[#1e293b]' },
@@ -530,7 +624,7 @@ const themeChassisMap = {
   Scarlet: { wrapper: 'bg-[#1e0a0a]/70 border-[#3d1414]', inner: 'bg-[#2c0f0f]/80 border-[#3d1414]' },
 };
 
-const themeKeysMap = {
+const themeKeysMap: Record<KeyboardTheme, KeyTheme> = {
   Classic: {
     light: { base: 'rgba(245, 245, 245, 0.8)', inner: 'rgb(245, 245, 245)', text: 'rgba(0, 0, 0, 0.7)' },
     orange: { base: 'rgba(245, 118, 68, 0.8)', inner: 'rgb(245, 118, 68)', text: 'rgba(0, 0, 0, 0.5)' },
@@ -569,58 +663,158 @@ const themeKeysMap = {
   }
 };
 
-export default function VirtualKeyboard() {
+interface KeyCapProps {
+  config: KeyConfig;
+  isPressed: boolean;
+  theme: KeyTheme;
+}
+
+const KeyCap = React.memo(function KeyCap({
+  config,
+  isPressed,
+  theme,
+}: KeyCapProps) {
+  const innerWidth = config.width - 13;
+
+  let colors = theme.light;
+  if (config.type === 'orange') colors = theme.orange;
+  if (config.type === 'dark') colors = theme.dark;
+
+  const displayedColors = isPressed ? theme.pressed : colors;
+  const borderClass = isPressed ? theme.pressed.border : 'border-black/40';
+
+
+  return (
+    <div
+      className="flex touch-none cursor-default items-end border-0 bg-transparent p-0 text-left"
+      style={{ height: '50px', width: `${config.width}px` }}
+    >
+      <div
+        className="relative flex h-[50px] items-start justify-center overflow-hidden rounded-[4px] rounded-t-[12px] border border-black/40 transition-colors duration-75 ease-out motion-reduce:transition-none"
+        style={{
+          width: `${config.width}px`,
+          backgroundColor: displayedColors.base,
+        }}
+      >
+        <div
+          className={`relative z-10 flex h-[37px] select-none flex-col items-center justify-between rounded-[6px] border border-t-0 p-1 text-[9px] font-semibold ${borderClass} transition-[transform,background-color,color,border-color] duration-75 ease-out motion-reduce:transition-none`}
+          style={{
+            width: `${innerWidth}px`,
+            backgroundColor: displayedColors.inner,
+            color: displayedColors.text,
+            transform: isPressed ? 'translateY(5px)' : 'translateY(0)',
+          }}
+        >
+          {config.icon ? (
+            <>
+              <div className="flex h-full w-full items-center justify-center">
+                {renderIcon(config.icon)}
+              </div>
+              {config.label && <span className="mt-[-2px] leading-none">{config.label}</span>}
+            </>
+          ) : config.subLabel ? (
+            <>
+              <span className="leading-none">{config.subLabel}</span>
+              <span className="leading-none">{config.label}</span>
+            </>
+          ) : (
+            <div className="flex w-full flex-1 items-center justify-center">
+              <span className="leading-none">{config.label}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="absolute bottom-0 right-0 z-0 h-px w-8 translate-x-3.5 rotate-70 bg-black/30" />
+        <div className="absolute bottom-0 left-0 z-0 h-px w-8 -translate-x-3.5 -rotate-70 bg-black/30" />
+      </div>
+    </div>
+  );
+});
+
+KeyCap.displayName = 'KeyCap';
+
+const updatePressedKeys = (current: Set<string>, code: string, isPressed: boolean) => {
+  if (current.has(code) === isPressed) return current;
+
+  const next = new Set(current);
+  if (isPressed) {
+    next.add(code);
+  } else {
+    next.delete(code);
+  }
+  return next;
+};
+
+const normalizeKeyCode = (code: string) => code === 'NumpadEnter' ? 'Enter' : code;
+
+const VirtualKeyboard = React.memo(function VirtualKeyboard() {
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const { settings } = useKeyboardSettings();
 
   useEffect(() => {
-    initAudio();
-  }, []);
+    syncFeedbackPreferences(settings.enableSound, settings.enableHaptics);
+
+    if (settings.enableSound) {
+      void initAudio();
+    }
+  }, [settings.enableHaptics, settings.enableSound]);
 
   useEffect(() => {
+    const unlockAudio = () => {
+      if (!feedbackPreferences.enableSound) return;
+
+      const context = getAudioContext();
+      if (context) void resumeAudioContext(context);
+    };
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
-      let code = e.code;
-      if (code === 'NumpadEnter') code = 'Enter';
+      unlockAudio();
+      const code = normalizeKeyCode(e.code);
       
       if (!isTypingKey(code)) {
         playSound(code, 'down');
       }
-      
-      setPressedKeys((prev) => {
-        const next = new Set(prev);
-        next.add(code);
-        return next;
-      });
+
+      if (settings.displayKeyboard) {
+        setPressedKeys((current) => updatePressedKeys(current, code, true));
+      }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      let code = e.code;
-      if (code === 'NumpadEnter') code = 'Enter';
+      const code = normalizeKeyCode(e.code);
       
       playSound(code, 'up');
-      
-      setPressedKeys((prev) => {
-        const next = new Set(prev);
-        next.delete(code);
-        return next;
-      });
+
+      if (settings.displayKeyboard) {
+        setPressedKeys((current) => updatePressedKeys(current, code, false));
+      }
     };
 
     const handleBlur = () => {
-      setPressedKeys(new Set());
+      if (settings.displayKeyboard) {
+        setPressedKeys((current) => current.size === 0 ? current : new Set());
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
     window.addEventListener('blur', handleBlur);
+    window.addEventListener('pointerdown', unlockAudio, { passive: true });
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('pointerdown', unlockAudio);
     };
-  }, []);
+  }, [settings.displayKeyboard]);
+
+  useEffect(() => {
+    if (!settings.displayKeyboard) {
+      setPressedKeys((current) => current.size === 0 ? current : new Set());
+    }
+  }, [settings.displayKeyboard]);
 
   if (!settings.displayKeyboard) return null;
 
@@ -628,126 +822,25 @@ export default function VirtualKeyboard() {
   const keyTheme = themeKeysMap[settings.theme] || themeKeysMap.Classic;
 
   return (
-    <div className="w-full overflow-x-auto flex justify-center py-6 select-none no-scrollbar">
+    <div
+      aria-hidden="true"
+      className="no-scrollbar flex w-full select-none justify-center overflow-x-auto py-6"
+    >
       {/* Keyboard wrapper scaling for responsive widths */}
-      <div className="scale-[0.6] origin-top sm:scale-[0.8] md:scale-95 lg:scale-100 my-[-55px] sm:my-[-25px] md:my-[-5px] lg:my-0 transition-transform duration-300">
-        <div className={`p-3 rounded-[16px] w-fit h-fit shadow-2xl border-2 transition-all duration-500 ease-in-out ${chassis.wrapper}`}>
-          <div className={`rounded-[5px] rounded-t-[8px] h-[278px] overflow-hidden border transition-all duration-500 ease-in-out ${chassis.inner}`}>
+      <div className="my-[-55px] origin-top scale-[0.6] transition-transform duration-200 motion-reduce:transition-none sm:my-[-25px] sm:scale-[0.8] md:my-[-5px] md:scale-95 lg:my-0 lg:scale-100">
+        <div className={`h-fit w-fit rounded-[16px] border-2 p-3 shadow-2xl transition-colors duration-200 ease-out motion-reduce:transition-none ${chassis.wrapper}`}>
+          <div className={`h-[278px] overflow-hidden rounded-[5px] rounded-t-[8px] border transition-colors duration-200 ease-out motion-reduce:transition-none ${chassis.inner}`}>
             <div className="-space-y-1 -translate-y-1 rounded-[5px] overflow-hidden">
               {allRows.map((row, rowIndex) => (
                 <div key={rowIndex} className="flex">
-                  {row.map((key) => {
-                    const isPressed = pressedKeys.has(key.code);
-                    const innerWidth = key.width - 13;
-
-                    // Compute styles based on key type and pressed state
-                    let baseBg = keyTheme.light.base;
-                    let innerBg = keyTheme.light.inner;
-                    let textColor = keyTheme.light.text;
-                    let borderInner = 'border-black/40';
-
-                    if (key.type === 'orange') {
-                      baseBg = keyTheme.orange.base;
-                      innerBg = keyTheme.orange.inner;
-                      textColor = keyTheme.orange.text;
-                    } else if (key.type === 'dark') {
-                      baseBg = keyTheme.dark.base;
-                      innerBg = keyTheme.dark.inner;
-                      textColor = keyTheme.dark.text;
-                    }
-
-                    // Apply pressed styles
-                    if (isPressed) {
-                      baseBg = keyTheme.pressed.base;
-                      innerBg = keyTheme.pressed.inner;
-                      textColor = keyTheme.pressed.text;
-                      borderInner = keyTheme.pressed.border;
-                    }
-
-                    return (
-                      <button
-                        key={key.code}
-                        type="button"
-                        aria-label={key.label || key.code}
-                        className="flex items-end cursor-pointer touch-none appearance-none border-0 bg-transparent p-0 text-left focus:outline-none"
-                        style={{ height: '50px', width: `${key.width}px` }}
-                        onPointerDown={(e) => {
-                          e.preventDefault();
-                          playSound(key.code, 'down');
-                          setPressedKeys((prev) => {
-                            const next = new Set(prev);
-                            next.add(key.code);
-                            return next;
-                          });
-                        }}
-                        onPointerUp={(e) => {
-                          e.preventDefault();
-                          if (pressedKeys.has(key.code)) {
-                            playSound(key.code, 'up');
-                          }
-                          setPressedKeys((prev) => {
-                            const next = new Set(prev);
-                            next.delete(key.code);
-                            return next;
-                          });
-                        }}
-                        onPointerLeave={(e) => {
-                          e.preventDefault();
-                          if (pressedKeys.has(key.code)) {
-                            playSound(key.code, 'up');
-                          }
-                          setPressedKeys((prev) => {
-                            const next = new Set(prev);
-                            next.delete(key.code);
-                            return next;
-                          });
-                        }}
-                      >
-                        <div
-                          className="relative overflow-hidden h-[50px] rounded-[4px] rounded-t-[12px] border border-black/40 flex items-start justify-center"
-                          style={{
-                            width: `${key.width}px`,
-                            backgroundColor: baseBg,
-                            transition: 'background-color 500ms ease-in-out, border-color 500ms ease-in-out',
-                          }}
-                        >
-                          <div
-                            className={`relative z-10 h-[37px] rounded-[6px] border border-t-0 ${borderInner} text-[9px] font-semibold flex flex-col items-center justify-between p-1 select-none`}
-                            style={{
-                              width: `${innerWidth}px`,
-                              backgroundColor: innerBg,
-                              color: textColor,
-                              transform: isPressed ? 'translateY(5px)' : 'translateY(0px)',
-                              transition: 'background-color 500ms ease-in-out, color 500ms ease-in-out, border-color 500ms ease-in-out, transform 75ms ease-out',
-                            }}
-                          >
-                            {/* Render different labels depending on whether subLabel or icon exists */}
-                            {key.icon ? (
-                              <>
-                                <div className="flex items-center justify-center h-full w-full">
-                                  {renderIcon(key.icon)}
-                                </div>
-                                {key.label && <span className="leading-none mt-[-2px]">{key.label}</span>}
-                              </>
-                            ) : key.subLabel ? (
-                              <>
-                                <span className="leading-none">{key.subLabel}</span>
-                                <span className="leading-none">{key.label}</span>
-                              </>
-                            ) : (
-                              <div className="flex items-center justify-center flex-1 w-full">
-                                <span className="leading-none">{key.label}</span>
-                              </div>
-                            )}
-                          </div>
-                          
-                          {/* Corner diagonals for the mechanical keycap base */}
-                          <div className="absolute z-0 bottom-0 right-0 h-px w-8 rotate-70 translate-x-3.5 bg-black/30 transition-all duration-100"></div>
-                          <div className="absolute z-0 bottom-0 left-0 h-px w-8 -rotate-70 -translate-x-3.5 bg-black/30 transition-all duration-100"></div>
-                        </div>
-                      </button>
-                    );
-                  })}
+                  {row.map((key) => (
+                    <KeyCap
+                      key={key.code}
+                      config={key}
+                      isPressed={pressedKeys.has(key.code)}
+                      theme={keyTheme}
+                    />
+                  ))}
                 </div>
               ))}
             </div>
@@ -756,4 +849,8 @@ export default function VirtualKeyboard() {
       </div>
     </div>
   );
-}
+});
+
+VirtualKeyboard.displayName = 'VirtualKeyboard';
+
+export default VirtualKeyboard;
