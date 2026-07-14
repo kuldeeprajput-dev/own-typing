@@ -183,6 +183,10 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     const currentWord = words[currentWordIndex];
     if (!currentWord) return;
 
+    if (value.length > currentWord.length + 10 && !value.endsWith(' ')) {
+      return;
+    }
+
     if (value.endsWith(' ')) {
       const typedWord = value.trim();
       if (typedWord.length === 0) {
