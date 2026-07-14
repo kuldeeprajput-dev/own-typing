@@ -1,40 +1,32 @@
-import { CharState, TypingStats } from '@/types';
+import { TypingCounters, TypingStats } from '@/types';
+
+const MIN_WPM_SAMPLE_SECONDS = 1;
 
 export function calculateWpm(chars: number, elapsedSeconds: number): number {
-  if (elapsedSeconds === 0) return 0;
+  if (chars <= 0 || elapsedSeconds < MIN_WPM_SAMPLE_SECONDS) return 0;
   return Math.round((chars / 5) / (elapsedSeconds / 60));
 }
 
-export function calculateAccuracy(correctChars: number, totalTyped: number): number {
-  if (totalTyped === 0) return 100;
-  return Math.round((correctChars / totalTyped) * 100);
+export function calculateAccuracy(correctKeystrokes: number, totalTyped: number): number {
+  if (totalTyped <= 0) return 100;
+  const boundedCorrectKeystrokes = Math.min(
+    Math.max(correctKeystrokes, 0),
+    totalTyped,
+  );
+  return Math.round((boundedCorrectKeystrokes / totalTyped) * 100);
 }
 
 export function computeStats(
-  charStates: CharState[][], 
-  elapsed: number, 
-  totalKeystrokes: number,
-  correctKeystrokes: number
+  counters: TypingCounters,
+  elapsedSeconds: number,
 ): TypingStats {
-  let correctChars = 0;
-  
-  // Calculate correct characters for WPM (including spaces)
-  // We count words that are fully correct or partial correct
-  charStates.forEach((wordChars, wordIdx) => {
-    wordChars.forEach((char) => {
-      if (char.status === 'correct') {
-        correctChars++;
-      }
-    });
-    
-    // Add space if word is not the last one and has been typed (partially or fully)
-    if (wordIdx < charStates.length - 1) {
-      const hasContent = wordChars.some(c => c.status !== 'idle');
-      if (hasContent) {
-        correctChars++; // Assume space is correct if word was typed
-      }
-    }
-  });
+  const elapsed = Math.max(0, elapsedSeconds);
+  const totalKeystrokes = Math.max(0, counters.totalKeystrokes);
+  const correctKeystrokes = Math.min(
+    Math.max(0, counters.correctKeystrokes),
+    totalKeystrokes,
+  );
+  const correctChars = Math.max(0, counters.correctChars);
 
   return {
     wpm: calculateWpm(correctChars, elapsed),
@@ -43,5 +35,7 @@ export function computeStats(
     elapsed,
     correctChars,
     totalTyped: totalKeystrokes,
+    correctKeystrokes,
+    errors: totalKeystrokes - correctKeystrokes,
   };
 }
