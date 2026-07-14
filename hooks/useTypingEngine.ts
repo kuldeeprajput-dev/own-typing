@@ -2,8 +2,44 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { CharState, TestMode, TestStatus, TypingStats, TestOptions } from '@/types';
 import { generateWords } from '@/utils/words';
 import { computeStats } from '@/utils/typing';
+import { playSound, playErrorSound } from '@/components/VirtualKeyboard';
 
 const WORDS_COUNT = 100;
+
+const getSoundCodeForChar = (char: string): string => {
+  if (char === ' ') return 'Space';
+  if (/^[a-zA-Z]$/.test(char)) {
+    return `Key${char.toUpperCase()}`;
+  }
+  if (/^[0-9]$/.test(char)) {
+    return `Digit${char}`;
+  }
+  const punctuationMap: Record<string, string> = {
+    ';': 'Semicolon',
+    ':': 'Semicolon',
+    "'": 'Quote',
+    '"': 'Quote',
+    ',': 'Comma',
+    '<': 'Comma',
+    '.': 'Period',
+    '>': 'Period',
+    '/': 'Slash',
+    '?': 'Slash',
+    '-': 'Minus',
+    '_': 'Minus',
+    '=': 'Equal',
+    '+': 'Equal',
+    '[': 'BracketLeft',
+    '{': 'BracketLeft',
+    ']': 'BracketRight',
+    '}': 'BracketRight',
+    '\\': 'Backslash',
+    '|': 'Backslash',
+    '`': 'Backquote',
+    '~': 'Backquote',
+  };
+  return punctuationMap[char] || 'Space';
+};
 
 function initializeCharStates(words: string[]): CharState[][] {
   return words.map((word, wordIndex) => {
@@ -154,8 +190,14 @@ export function useTypingEngine(initialMode: TestMode = 30) {
         return;
       }
 
+      const isCorrectWord = typedWord === currentWord;
+      if (isCorrectWord) {
+        playSound('Space', 'down');
+        correctKeystrokesRef.current += 1;
+      } else {
+        playErrorSound();
+      }
       totalKeystrokesRef.current += 1;
-      correctKeystrokesRef.current += 1;
 
       const nextWordIdx = currentWordIndex + 1;
       
@@ -191,6 +233,7 @@ export function useTypingEngine(initialMode: TestMode = 30) {
 
     if (value.length < currentCharIndex) {
       setCurrentCharIndex(value.length);
+      playSound('Backspace', 'down');
       setCharStates(prev => {
         const next = [...prev];
         const wordChars = [...next[currentWordIndex]];
@@ -212,8 +255,12 @@ export function useTypingEngine(initialMode: TestMode = 30) {
     
     if (charTyped) {
       totalKeystrokesRef.current += 1;
-      if (charTyped === expectedChar) {
+      const isCorrect = charTyped === expectedChar && currentCharIndex < currentWord.length;
+      if (isCorrect) {
         correctKeystrokesRef.current += 1;
+        playSound(getSoundCodeForChar(charTyped), 'down');
+      } else {
+        playErrorSound();
       }
 
       setCharStates(prev => {

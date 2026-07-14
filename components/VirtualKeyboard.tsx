@@ -202,14 +202,299 @@ function renderIcon(iconName: string) {
   }
 }
 
+const KEY_DOWN_SOUNDS: Record<string, [number, number]> = {
+  Escape: [9069, 115],
+  F1: [2754, 104],
+  F2: [3155, 99],
+  F3: [3545, 103],
+  F4: [3913, 100],
+  F5: [4305, 96],
+  F6: [4666, 103],
+  F7: [5034, 110],
+  F8: [5433, 103],
+  F9: [7795, 109],
+  F10: [6146, 105],
+  F11: [7322, 97],
+  F12: [7699, 98],
+  F13: [2754, 104],
+  Delete: [14199, 100],
+  F14: [3155, 99],
+  Backquote: [9069, 115],
+  Digit1: [2280, 109],
+  Digit2: [9444, 102],
+  Digit3: [9833, 103],
+  Digit4: [10185, 107],
+  Digit5: [10551, 108],
+  Digit6: [10899, 107],
+  Digit7: [11282, 99],
+  Digit8: [11623, 103],
+  Digit9: [11976, 110],
+  Digit0: [12337, 108],
+  Minus: [12667, 107],
+  Equal: [13058, 105],
+  Backspace: [13765, 101],
+  PageUp: [14522, 108],
+  Tab: [15916, 97],
+  KeyQ: [16284, 83],
+  KeyW: [16637, 97],
+  KeyE: [16964, 105],
+  KeyR: [17275, 102],
+  KeyT: [17613, 108],
+  KeyY: [17957, 95],
+  KeyU: [18301, 105],
+  KeyI: [18643, 110],
+  KeyO: [18994, 98],
+  KeyP: [19331, 108],
+  BracketLeft: [19671, 94],
+  BracketRight: [20020, 96],
+  Backslash: [20387, 97],
+  PageDown: [14852, 93],
+  CapsLock: [22560, 100],
+  KeyA: [22869, 109],
+  KeyS: [23237, 98],
+  KeyD: [23586, 103],
+  KeyF: [23898, 98],
+  KeyG: [24237, 102],
+  KeyH: [24550, 106],
+  KeyJ: [24917, 103],
+  KeyK: [25274, 102],
+  KeyL: [25625, 101],
+  Semicolon: [25989, 100],
+  Quote: [26335, 99],
+  Enter: [26703, 100],
+  Home: [20766, 102],
+  ShiftLeft: [28109, 99],
+  KeyZ: [28550, 92],
+  KeyX: [28855, 101],
+  KeyC: [29557, 112],
+  KeyV: [29557, 112],
+  KeyB: [29909, 98],
+  KeyN: [30252, 112],
+  KeyM: [30605, 101],
+  Comma: [30965, 117],
+  Period: [31315, 97],
+  Slash: [31659, 96],
+  ShiftRight: [28109, 99],
+  ArrowUp: [32429, 96],
+  End: [21409, 83],
+  ControlLeft: [8036, 92],
+  AltLeft: [34551, 96],
+  MetaLeft: [34551, 96],
+  Space: [33857, 100],
+  MetaRight: [34181, 97],
+  Fn: [8036, 92],
+  ControlRight: [8036, 92],
+  ArrowLeft: [36907, 90],
+  ArrowDown: [37267, 94],
+  ArrowRight: [37586, 88],
+  AltRight: [35878, 90],
+};
+
+const KEY_UP_SOUNDS: Record<string, [number, number]> = {
+  Escape: [9184, 94],
+  F1: [2858, 85],
+  F2: [3254, 81],
+  F3: [3648, 84],
+  F4: [4013, 83],
+  F5: [4401, 78],
+  F6: [4769, 84],
+  F7: [5144, 90],
+  F8: [5536, 84],
+  F9: [7904, 89],
+  F10: [6251, 86],
+  F11: [7419, 80],
+  F12: [7797, 80],
+  F13: [2858, 85],
+  Delete: [14299, 81],
+  F14: [3254, 81],
+  Backquote: [9184, 94],
+  Digit1: [2389, 90],
+  Digit2: [9546, 83],
+  Digit3: [9936, 84],
+  Digit4: [10292, 87],
+  Digit5: [10659, 88],
+  Digit6: [11006, 87],
+  Digit7: [11381, 81],
+  Digit8: [11726, 85],
+  Digit9: [12086, 90],
+  Digit0: [12445, 89],
+  Minus: [12774, 87],
+  Equal: [13163, 86],
+  Backspace: [13866, 83],
+  PageUp: [14630, 88],
+  Tab: [16013, 79],
+  KeyQ: [16367, 67],
+  KeyW: [16734, 79],
+  KeyE: [17069, 85],
+  KeyR: [17377, 83],
+  KeyT: [17721, 88],
+  KeyY: [18052, 78],
+  KeyU: [18406, 85],
+  KeyI: [18753, 90],
+  KeyO: [19092, 80],
+  KeyP: [19439, 89],
+  BracketLeft: [19765, 77],
+  BracketRight: [20116, 79],
+  Backslash: [20484, 79],
+  PageDown: [14945, 76],
+  CapsLock: [22660, 81],
+  KeyA: [22978, 89],
+  KeyS: [23335, 80],
+  KeyD: [23689, 84],
+  KeyF: [23996, 81],
+  KeyG: [24339, 83],
+  KeyH: [24656, 86],
+  KeyJ: [25020, 85],
+  KeyK: [25376, 83],
+  KeyL: [25726, 82],
+  Semicolon: [26089, 82],
+  Quote: [26434, 81],
+  Enter: [26803, 81],
+  Home: [20868, 83],
+  ShiftLeft: [28208, 81],
+  KeyZ: [28642, 75],
+  KeyX: [28956, 83],
+  KeyC: [29669, 92],
+  KeyV: [29669, 92],
+  KeyB: [30007, 81],
+  KeyN: [30364, 91],
+  KeyM: [30706, 83],
+  Comma: [31082, 95],
+  Period: [31412, 79],
+  Slash: [31755, 79],
+  ShiftRight: [28208, 81],
+  ArrowUp: [32525, 78],
+  End: [21492, 68],
+  ControlLeft: [8128, 76],
+  AltLeft: [34647, 79],
+  MetaLeft: [34647, 79],
+  Space: [33957, 82],
+  MetaRight: [34278, 80],
+  Fn: [8128, 76],
+  ControlRight: [8128, 76],
+  ArrowLeft: [36997, 73],
+  ArrowDown: [37361, 76],
+  ArrowRight: [37674, 72],
+  AltRight: [35968, 74],
+};
+
+let audioBuffer: AudioBuffer | null = null;
+let audioCtx: AudioContext | null = null;
+
+const initAudio = async () => {
+  if (typeof window === 'undefined' || audioBuffer) return;
+  try {
+    const AudioContextClass = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (AudioContextClass) {
+      audioCtx = new AudioContextClass();
+    }
+    if (!audioCtx) return;
+    const response = await fetch('/sound.ogg');
+    const arrayBuffer = await response.arrayBuffer();
+    audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+  } catch (err) {
+    console.error('Failed to load/decode audio:', err);
+  }
+};
+
+export const playSound = (code: string, type: 'down' | 'up') => {
+  if (typeof window === 'undefined') return;
+  if (!audioCtx || !audioBuffer) {
+    initAudio();
+    return;
+  }
+  
+  const map = type === 'down' ? KEY_DOWN_SOUNDS : KEY_UP_SOUNDS;
+  const audioInfo = map[code];
+  if (!audioInfo) return;
+  
+  const [startMs, durationMs] = audioInfo;
+
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  const source = audioCtx.createBufferSource();
+  source.buffer = audioBuffer;
+  
+  const gainNode = audioCtx.createGain();
+  gainNode.gain.value = 0.65; // comfortable keystroke volume
+  
+  source.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  source.start(0, startMs / 1000, durationMs / 1000);
+};
+
+export const playErrorSound = () => {
+  if (typeof window === 'undefined') return;
+  try {
+    const AudioContextClass = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    const ctx = audioCtx || (AudioContextClass ? new AudioContextClass() : null);
+    if (!ctx) return;
+    
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+    
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.1);
+    
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+    
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.1);
+  } catch (err) {
+    console.error('Audio API error:', err);
+  }
+};
+
+const isTypingKey = (code: string): boolean => {
+  return (
+    code.startsWith('Key') ||
+    code.startsWith('Digit') ||
+    [
+      'Space',
+      'Backspace',
+      'Semicolon',
+      'Quote',
+      'Comma',
+      'Period',
+      'Slash',
+      'Minus',
+      'Equal',
+      'BracketLeft',
+      'BracketRight',
+      'Backslash',
+      'Backquote',
+    ].includes(code)
+  );
+};
+
 export default function VirtualKeyboard() {
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    initAudio();
+  }, []);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return;
       let code = e.code;
       // Normalise code where needed (e.g. NumpadEnter to Enter)
       if (code === 'NumpadEnter') code = 'Enter';
+      
+      if (!isTypingKey(code)) {
+        playSound(code, 'down');
+      }
+      
       setPressedKeys((prev) => {
         const next = new Set(prev);
         next.add(code);
@@ -220,6 +505,9 @@ export default function VirtualKeyboard() {
     const handleKeyUp = (e: KeyboardEvent) => {
       let code = e.code;
       if (code === 'NumpadEnter') code = 'Enter';
+      
+      playSound(code, 'up');
+      
       setPressedKeys((prev) => {
         const next = new Set(prev);
         next.delete(code);
@@ -286,6 +574,37 @@ export default function VirtualKeyboard() {
                         aria-label={key.label || key.code}
                         className="flex items-end cursor-pointer touch-none appearance-none border-0 bg-transparent p-0 text-left focus:outline-none"
                         style={{ height: '50px', width: `${key.width}px` }}
+                        onPointerDown={(e) => {
+                          e.preventDefault();
+                          playSound(key.code, 'down');
+                          setPressedKeys((prev) => {
+                            const next = new Set(prev);
+                            next.add(key.code);
+                            return next;
+                          });
+                        }}
+                        onPointerUp={(e) => {
+                          e.preventDefault();
+                          if (pressedKeys.has(key.code)) {
+                            playSound(key.code, 'up');
+                          }
+                          setPressedKeys((prev) => {
+                            const next = new Set(prev);
+                            next.delete(key.code);
+                            return next;
+                          });
+                        }}
+                        onPointerLeave={(e) => {
+                          e.preventDefault();
+                          if (pressedKeys.has(key.code)) {
+                            playSound(key.code, 'up');
+                          }
+                          setPressedKeys((prev) => {
+                            const next = new Set(prev);
+                            next.delete(key.code);
+                            return next;
+                          });
+                        }}
                       >
                         <div
                           className="relative overflow-hidden h-[50px] rounded-[4px] rounded-t-[12px] border border-black/40 flex items-start justify-center transition-all duration-100"
