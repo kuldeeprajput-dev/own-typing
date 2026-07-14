@@ -68,57 +68,35 @@ interface WordDisplayProps {
   words: string[];
   currentWordIndex: number;
   isDark?: boolean;
+  activeWordRef: React.RefObject<HTMLSpanElement | null>;
 }
 
-const WordDisplay = React.memo(function WordDisplay({ charStates, words, currentWordIndex, isDark = true }: WordDisplayProps) {
-  const wordsPerRow = 22;
+const WordDisplay = React.memo(function WordDisplay({ 
+  charStates, 
+  words, 
+  currentWordIndex, 
+  isDark = true,
+  activeWordRef
+}: WordDisplayProps) {
   
-  // Group all words into lines
-  const rows: { words: string[]; startIndex: number }[] = [];
-  for (let i = 0; i < words.length; i += wordsPerRow) {
-    rows.push({
-      words: words.slice(i, i + wordsPerRow),
-      startIndex: i,
-    });
-  }
-
-  // Find active line index based on currentWordIndex
-  const activeRowIdx = Math.floor(currentWordIndex / wordsPerRow);
-
-  // Keep a sliding window of exactly 3 lines
-  let startRow = 0;
-  if (activeRowIdx >= 2) {
-    startRow = activeRowIdx - 1;
-  }
-  // Ensure we don't go out of bounds at the end of the words list
-  if (startRow + 3 > rows.length) {
-    startRow = Math.max(0, rows.length - 3);
-  }
-
-  const visibleRows = rows.slice(startRow, startRow + 3);
-
   return (
-    <div className="flex flex-col gap-y-3 leading-relaxed text-lg sm:text-xl md:text-2xl font-['JetBrains_Mono',_monospace] w-full">
-      {visibleRows.map((row, relativeIdx) => {
-        const globalRowIdx = startRow + relativeIdx;
-        const isFull = row.words.length === wordsPerRow;
-        
+    <div 
+      className="text-justify leading-relaxed text-lg sm:text-xl md:text-2xl font-['JetBrains_Mono',_monospace] w-full"
+      style={{ textAlignLast: 'left', textJustify: 'inter-word' }}
+    >
+      {words.map((word, index) => {
+        const isActive = index === currentWordIndex;
         return (
-          <div 
-            key={globalRowIdx} 
-            className={`flex w-full flex-nowrap ${isFull ? 'justify-between' : 'justify-start gap-x-6'}`}
+          <span 
+            key={index} 
+            ref={isActive ? activeWordRef : undefined}
+            className="inline-block mx-[0.35em] my-1"
           >
-            {row.words.map((word, wordIdx) => {
-              const globalWordIndex = row.startIndex + wordIdx;
-              return (
-                <WordRow
-                  key={globalWordIndex}
-                  charStates={charStates[globalWordIndex] || []}
-                  isDark={isDark}
-                />
-              );
-            })}
-          </div>
+            <WordRow
+              charStates={charStates[index] || []}
+              isDark={isDark}
+            />
+          </span>
         );
       })}
     </div>

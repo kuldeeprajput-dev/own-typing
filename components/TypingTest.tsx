@@ -148,6 +148,7 @@ export default function TypingTest() {
   const [isFocused, setIsFocused] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const activeWordRef = useRef<HTMLSpanElement>(null);
   
   const { settings } = useKeyboardSettings();
   const isDark = settings.isDark;
@@ -174,6 +175,24 @@ export default function TypingTest() {
   useEffect(() => {
     inputRef.current?.focus();
   }, [inputRef]);
+
+  useEffect(() => {
+    if (activeWordRef.current && containerRef.current) {
+      const activeWordEl = activeWordRef.current;
+      const containerEl = containerRef.current;
+      
+      const wordTop = activeWordEl.offsetTop;
+      const wordHeight = activeWordEl.offsetHeight;
+      const containerHeight = containerEl.clientHeight;
+      
+      const targetScrollTop = wordTop - (containerHeight / 2) + (wordHeight / 2);
+      
+      containerEl.scrollTo({
+        top: Math.max(0, targetScrollTop),
+        behavior: 'smooth',
+      });
+    }
+  }, [currentWordIndex]);
 
   const onInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -251,6 +270,7 @@ export default function TypingTest() {
             words={words} 
             currentWordIndex={currentWordIndex} 
             isDark={isDark} 
+            activeWordRef={activeWordRef}
           />
           {!isFocused && (
             <div className="absolute inset-0 flex items-center justify-center">

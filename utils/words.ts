@@ -1,7 +1,7 @@
 import { TestOptions } from '@/types';
 
 const WORD_LIST = [
-  'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'I',
+  'the', 'be', 'to', 'of', 'and', 'in', 'that', 'have',
   'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at',
   'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she',
   'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what',
@@ -52,8 +52,9 @@ export function generateWords(count: number, options: TestOptions = { punctuatio
 
     if (options.numbers) {
       // 5% chance to replace word with a number
+      // Ensure the generated number is at least 2 digits (e.g. 10 to 999)
       if (Math.random() < 0.05) {
-        word = Math.floor(Math.random() * 1000).toString();
+        word = Math.floor(Math.random() * 990 + 10).toString();
       }
     }
 
