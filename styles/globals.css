@@ -125,7 +125,7 @@ button:focus-visible {
   }
 }
 
-@media (max-width: 768px), (pointer: coarse) {
+@media (max-width: 1024px), (pointer: coarse) {
   .mobile-hide {
     display: none !important;
   }
