@@ -40,7 +40,7 @@ const themeStatsStyles: Record<KeyboardTheme, { dark: { accent: string; label: s
 };
 
 const Stats = React.memo(function Stats({ stats, mode, elapsed, bestWpm, isDark = true }: StatsProps) {
-  const timeRemaining = Math.max(0, Math.floor(mode - elapsed));
+  const timeRemaining = Math.max(0, Math.ceil(mode - elapsed));
   const { settings } = useKeyboardSettings();
   const themeStyles = themeStatsStyles[settings.theme] || themeStatsStyles.Classic;
   const current = isDark ? themeStyles.dark : themeStyles.light;
