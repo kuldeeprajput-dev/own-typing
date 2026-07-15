@@ -543,10 +543,20 @@ export const playSound = (code: string, type: 'down' | 'up') => {
   });
 };
 
+export const isHapticsEnabled = () => {
+  if (typeof window === 'undefined') return false;
+  return feedbackPreferences.enableHaptics;
+};
+
 export const playErrorSound = () => {
   if (typeof window === 'undefined') return;
 
   triggerHaptic();
+
+  if (!feedbackPreferences.enableHaptics) {
+    return;
+  }
+
   if (!feedbackPreferences.enableSound) return;
 
   const context = getAudioContext();

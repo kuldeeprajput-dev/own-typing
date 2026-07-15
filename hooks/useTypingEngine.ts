@@ -10,7 +10,7 @@ import {
 } from '@/types';
 import { generateWords } from '@/utils/words';
 import { computeStats } from '@/utils/typing';
-import { playErrorSound, playSound } from '@/components/VirtualKeyboard';
+import { isHapticsEnabled, playErrorSound, playSound } from '@/components/VirtualKeyboard';
 
 const WORDS_COUNT = 100;
 const MAX_EXTRA_CHARS = 10;
@@ -78,7 +78,7 @@ interface EngineState {
 
 type InputFeedback =
   | { type: 'key'; code: string }
-  | { type: 'error' }
+  | { type: 'error'; code?: string }
   | null;
 
 interface InputTransition {
@@ -384,7 +384,7 @@ function applyInput(
         if (isCorrect) correctKeystrokes += 1;
         feedback = isCorrect
           ? { type: 'key', code: getSoundCodeForChar(char) }
-          : { type: 'error' };
+          : { type: 'error', code: getSoundCodeForChar(char) };
       }
 
       if (typed.length < target.length + MAX_EXTRA_CHARS) {
@@ -404,7 +404,7 @@ function applyInput(
       if (wordIsCorrect) correctKeystrokes += 1;
       feedback = wordIsCorrect
         ? { type: 'key', code: 'Space' }
-        : { type: 'error' };
+        : { type: 'error', code: 'Space' };
     }
 
     const completedWord = buildWordChars(target, typed, false);
