@@ -388,7 +388,7 @@ const feedbackPreferences = {
   enableHaptics: true,
 };
 
-const syncFeedbackPreferences = (enableSound: boolean, enableHaptics: boolean) => {
+export const syncFeedbackPreferences = (enableSound: boolean, enableHaptics: boolean) => {
   feedbackPreferences.enableSound = enableSound;
   feedbackPreferences.enableHaptics = enableHaptics;
 };

@@ -10,7 +10,8 @@ import {
 } from '@/types';
 import { generateWords } from '@/utils/words';
 import { computeStats } from '@/utils/typing';
-import { isHapticsEnabled, playErrorSound, playSound } from '@/components/VirtualKeyboard';
+import { isHapticsEnabled, playErrorSound, playSound, syncFeedbackPreferences } from '@/components/VirtualKeyboard';
+import { useKeyboardSettings } from '@/context/KeyboardSettingsContext';
 
 const WORDS_COUNT = 100;
 const MAX_EXTRA_CHARS = 10;
@@ -494,6 +495,12 @@ function playInputFeedback(feedback: InputFeedback): void {
 }
 
 export function useTypingEngine(initialMode: TestMode = 30) {
+  const { settings } = useKeyboardSettings();
+
+  useEffect(() => {
+    syncFeedbackPreferences(settings.enableSound, settings.enableHaptics);
+  }, [settings.enableSound, settings.enableHaptics]);
+
   const [engine, setEngine] = useState<EngineState>(() =>
     createEngineState(initialMode, DEFAULT_OPTIONS, createHydrationSafeWords()),
   );
