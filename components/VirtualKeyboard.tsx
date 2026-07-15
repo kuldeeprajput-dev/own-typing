@@ -651,7 +651,7 @@ const themeKeysMap: Record<KeyboardTheme, KeyTheme> = {
     light: { base: 'rgba(219, 234, 254, 0.8)', inner: 'rgb(219, 234, 254)', text: 'rgba(30, 58, 138, 0.8)' },
     orange: { base: 'rgba(59, 130, 246, 0.8)', inner: 'rgb(59, 130, 246)', text: 'rgba(255, 255, 255, 0.8)' },
     dark: { base: 'rgba(71, 85, 105, 0.8)', inner: 'rgb(71, 85, 105)', text: 'rgba(219, 234, 254, 0.8)' },
-    pressed: { base: 'rgba(245, 158, 11, 0.6)', inner: 'rgb(245, 158, 11)', text: 'rgba(0, 0, 0, 0.9)', border: 'border-amber-600/50' }
+    pressed: { base: 'rgba(29, 78, 216, 0.6)', inner: 'rgb(29, 78, 216)', text: 'rgba(255, 255, 255, 0.9)', border: 'border-blue-700/50' }
   },
   Dolch: {
     light: { base: 'rgba(156, 163, 175, 0.8)', inner: 'rgb(156, 163, 175)', text: 'rgba(17, 24, 39, 0.8)' },
@@ -663,7 +663,7 @@ const themeKeysMap: Record<KeyboardTheme, KeyTheme> = {
     light: { base: 'rgba(245, 245, 220, 0.8)', inner: 'rgb(245, 245, 220)', text: 'rgba(67, 56, 42, 0.8)' },
     orange: { base: 'rgba(168, 85, 24, 0.8)', inner: 'rgb(168, 85, 24)', text: 'rgba(255, 255, 255, 0.8)' },
     dark: { base: 'rgba(120, 113, 108, 0.8)', inner: 'rgb(120, 113, 108)', text: 'rgba(245, 245, 220, 0.8)' },
-    pressed: { base: 'rgba(220, 38, 38, 0.6)', inner: 'rgb(220, 38, 38)', text: 'rgba(255, 255, 255, 0.9)', border: 'border-red-600/50' }
+    pressed: { base: 'rgba(146, 64, 14, 0.6)', inner: 'rgb(146, 64, 14)', text: 'rgba(255, 255, 255, 0.9)', border: 'border-amber-800/50' }
   },
   Scarlet: {
     light: { base: 'rgba(255, 228, 230, 0.8)', inner: 'rgb(255, 228, 230)', text: 'rgba(136, 19, 55, 0.8)' },
