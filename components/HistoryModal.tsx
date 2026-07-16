@@ -296,17 +296,17 @@ export default function HistoryModal({ isOpen, onClose, isDark = true }: History
       
       {/* Modal content box */}
       <div className={`
-        relative w-full max-w-4xl rounded-3xl border p-8 shadow-2xl flex flex-col max-h-[90vh]
+        relative w-full max-w-4xl rounded-3xl border p-4 sm:p-8 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden
         transition-all duration-300 transform scale-100 animate-in zoom-in-95 duration-200
         ${style.bg} ${style.border} ${style.text} font-['JetBrains_Mono',_monospace]
       `}>
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-6 sm:mb-8">
           <div className="flex items-center gap-2.5">
-            <span className={`text-2xl font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+            <span className={`text-xl sm:text-2xl font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
               performance
             </span>
-            <span className={`text-2xl font-bold uppercase tracking-wider ${style.accentText}`}>
+            <span className={`text-xl sm:text-2xl font-bold uppercase tracking-wider ${style.accentText}`}>
               history
             </span>
           </div>
@@ -336,7 +336,7 @@ export default function HistoryModal({ isOpen, onClose, isDark = true }: History
         </div>
 
         {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto pr-1">
+        <div className="flex-1 overflow-y-auto pr-1 min-h-0 mobile-no-scrollbar">
           {history.length === 0 ? (
             <div className={`text-center py-20 ${style.subtext} text-base italic`}>
               No typing tests completed yet. Complete a test to view progress history!
@@ -344,39 +344,39 @@ export default function HistoryModal({ isOpen, onClose, isDark = true }: History
           ) : (
             <div className="flex flex-col">
               {/* Top Three Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 {/* Card 1: Best WPM */}
-                <div className={`flex items-center gap-4 p-5 rounded-2xl border ${style.cardBg} ${style.cardBorder} transition-all duration-300 hover:border-zinc-700/30`}>
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${style.iconBg} ${style.iconColor}`}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <div className={`flex items-center gap-4 p-4 sm:p-5 rounded-2xl border ${style.cardBg} ${style.cardBorder} transition-all duration-300 hover:border-zinc-700/30`}>
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center ${style.iconBg} ${style.iconColor}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5 sm:w-6 sm:h-6">
                       <path d="m22 7-8.5 8.5-5-5L2 17" />
                       <path d="M16 7h6v6" />
                     </svg>
                   </div>
                   <div>
                     <span className={`text-[10px] font-bold uppercase tracking-wider ${style.subtext}`}>Best WPM</span>
-                    <h3 className="text-3xl font-black mt-0.5 leading-none">{bestWpm}</h3>
+                    <h3 className="text-2xl sm:text-3xl font-black mt-0.5 leading-none">{bestWpm}</h3>
                   </div>
                 </div>
 
                 {/* Card 2: Average WPM */}
-                <div className={`flex items-center gap-4 p-5 rounded-2xl border ${style.cardBg} ${style.cardBorder} transition-all duration-300 hover:border-zinc-700/30`}>
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-blue-500/10 text-blue-400`}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <div className={`flex items-center gap-4 p-4 sm:p-5 rounded-2xl border ${style.cardBg} ${style.cardBorder} transition-all duration-300 hover:border-zinc-700/30`}>
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center bg-blue-500/10 text-blue-400`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5 sm:w-6 sm:h-6">
                       <circle cx="12" cy="12" r="10" />
                       <polyline points="12 6 12 12 16 14" />
                     </svg>
                   </div>
                   <div>
                     <span className={`text-[10px] font-bold uppercase tracking-wider ${style.subtext}`}>Average WPM</span>
-                    <h3 className="text-3xl font-black mt-0.5 leading-none">{avgWpm}</h3>
+                    <h3 className="text-2xl sm:text-3xl font-black mt-0.5 leading-none">{avgWpm}</h3>
                   </div>
                 </div>
 
                 {/* Card 3: Average Accuracy */}
-                <div className={`flex items-center gap-4 p-5 rounded-2xl border ${style.cardBg} ${style.cardBorder} transition-all duration-300 hover:border-zinc-700/30`}>
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-emerald-500/10 text-emerald-450`}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <div className={`flex items-center gap-4 p-4 sm:p-5 rounded-2xl border ${style.cardBg} ${style.cardBorder} transition-all duration-300 hover:border-zinc-700/30`}>
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center bg-emerald-500/10 text-emerald-450`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5 sm:w-6 sm:h-6">
                       <circle cx="12" cy="12" r="10" />
                       <circle cx="12" cy="12" r="6" />
                       <circle cx="12" cy="12" r="2" />
@@ -384,19 +384,19 @@ export default function HistoryModal({ isOpen, onClose, isDark = true }: History
                   </div>
                   <div>
                     <span className={`text-[10px] font-bold uppercase tracking-wider ${style.subtext}`}>Average Accuracy</span>
-                    <h3 className="text-3xl font-black mt-0.5 leading-none">{avgAccuracy}%</h3>
+                    <h3 className="text-2xl sm:text-3xl font-black mt-0.5 leading-none">{avgAccuracy}%</h3>
                   </div>
                 </div>
               </div>
 
               {/* Chart Section */}
-              <div className="mb-4">
-                <span className={`inline-block text-[11px] font-bold uppercase tracking-widest mb-4 ${style.subtext}`}>
+              <div className="mb-2 sm:mb-4">
+                <span className={`inline-block text-[11px] font-bold uppercase tracking-widest mb-3 sm:mb-4 ${style.subtext}`}>
                   wpm progress
                 </span>
                 
                 {/* SVG Graph Container */}
-                <div className="w-full relative h-[240px]">
+                <div className="w-full relative h-[180px] sm:h-[240px]">
                   <svg width="100%" height="100%" viewBox="0 0 700 220" preserveAspectRatio="none">
                     {/* Horizontal grid lines */}
                     {gridSteps.map((val, idx) => {

@@ -79,6 +79,16 @@ button:focus-visible {
   scrollbar-width: none;
 }
 
+@media (max-width: 639px) {
+  .mobile-no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .mobile-no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 @keyframes themeReveal {
   from {
     clip-path: circle(0 at 50% 50%);
