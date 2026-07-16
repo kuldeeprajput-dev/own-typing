@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { KeyboardTheme, useKeyboardSettings } from '@/context/KeyboardSettingsContext';
 
 interface KeyConfig {
@@ -115,6 +115,7 @@ const row6: KeyConfig[] = [
 ];
 
 const allRows = [row1, row2, row3, row4, row5, row6];
+const keysByCode = new Map(allRows.flat().map((k) => [k.code, k]));
 
 function renderIcon(iconName: string) {
   switch (iconName) {
@@ -675,13 +676,11 @@ const themeKeysMap: Record<KeyboardTheme, KeyTheme> = {
 
 interface KeyCapProps {
   config: KeyConfig;
-  isPressed: boolean;
   theme: KeyTheme;
 }
 
 const KeyCap = React.memo(function KeyCap({
   config,
-  isPressed,
   theme,
 }: KeyCapProps) {
   const innerWidth = config.width - 13;
@@ -690,29 +689,27 @@ const KeyCap = React.memo(function KeyCap({
   if (config.type === 'orange') colors = theme.orange;
   if (config.type === 'dark') colors = theme.dark;
 
-  const displayedColors = isPressed ? theme.pressed : colors;
-  const borderClass = isPressed ? theme.pressed.border : 'border-black/40';
-
-
   return (
     <div
       className="flex touch-none cursor-default items-end border-0 bg-transparent p-0 text-left"
       style={{ height: '50px', width: `${config.width}px` }}
     >
       <div
-        className="relative flex h-[50px] items-start justify-center overflow-hidden rounded-[4px] rounded-t-[12px] border border-black/40 transition-colors duration-75 ease-out motion-reduce:transition-none"
+        id={`key-outer-${config.code}`}
+        className="relative flex h-[50px] items-start justify-center overflow-hidden rounded-[4px] rounded-t-[12px] border border-black/40"
         style={{
           width: `${config.width}px`,
-          backgroundColor: displayedColors.base,
+          backgroundColor: colors.base,
         }}
       >
         <div
-          className={`relative z-10 flex h-[37px] select-none flex-col items-center justify-between rounded-[6px] border border-t-0 p-1 text-[9px] font-semibold ${borderClass} transition-[transform,background-color,color,border-color] duration-75 ease-out motion-reduce:transition-none`}
+          id={`key-inner-${config.code}`}
+          className="relative z-10 flex h-[37px] select-none flex-col items-center justify-between rounded-[6px] border border-t-0 border-black/40 p-1 text-[9px] font-semibold"
           style={{
             width: `${innerWidth}px`,
-            backgroundColor: displayedColors.inner,
-            color: displayedColors.text,
-            transform: isPressed ? 'translateY(5px)' : 'translateY(0)',
+            backgroundColor: colors.inner,
+            color: colors.text,
+            transform: 'translateY(0)',
           }}
         >
           {config.icon ? (
@@ -743,22 +740,9 @@ const KeyCap = React.memo(function KeyCap({
 
 KeyCap.displayName = 'KeyCap';
 
-const updatePressedKeys = (current: Set<string>, code: string, isPressed: boolean) => {
-  if (current.has(code) === isPressed) return current;
-
-  const next = new Set(current);
-  if (isPressed) {
-    next.add(code);
-  } else {
-    next.delete(code);
-  }
-  return next;
-};
-
 const normalizeKeyCode = (code: string) => code === 'NumpadEnter' ? 'Enter' : code;
 
 const VirtualKeyboard = React.memo(function VirtualKeyboard() {
-  const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const { settings } = useKeyboardSettings();
 
   useEffect(() => {
@@ -769,41 +753,71 @@ const VirtualKeyboard = React.memo(function VirtualKeyboard() {
     }
   }, [settings.enableHaptics, settings.enableSound]);
 
+  const keyTheme = themeKeysMap[settings.theme] || themeKeysMap.Classic;
+
   useEffect(() => {
     const unlockAudio = () => {
       if (!feedbackPreferences.enableSound) return;
-
       const context = getAudioContext();
       if (context) void resumeAudioContext(context);
+    };
+
+    // Direct DOM key press/release — zero React state, zero re-renders
+    const pressKey = (code: string) => {
+      const outer = document.getElementById(`key-outer-${code}`);
+      const inner = document.getElementById(`key-inner-${code}`);
+      if (outer && inner) {
+        outer.style.backgroundColor = keyTheme.pressed.base;
+        inner.style.backgroundColor = keyTheme.pressed.inner;
+        inner.style.color = keyTheme.pressed.text;
+        inner.style.transform = 'translateY(5px)';
+      }
+    };
+
+    const releaseKey = (code: string) => {
+      const key = keysByCode.get(code);
+      if (!key) return;
+      const outer = document.getElementById(`key-outer-${code}`);
+      const inner = document.getElementById(`key-inner-${code}`);
+      if (outer && inner) {
+        let colors = keyTheme.light;
+        if (key.type === 'orange') colors = keyTheme.orange;
+        if (key.type === 'dark') colors = keyTheme.dark;
+        outer.style.backgroundColor = colors.base;
+        inner.style.backgroundColor = colors.inner;
+        inner.style.color = colors.text;
+        inner.style.transform = 'translateY(0)';
+      }
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
       unlockAudio();
       const code = normalizeKeyCode(e.code);
-      
+
       if (!isTypingKey(code)) {
         playSound(code, 'down');
       }
 
       if (settings.displayKeyboard) {
-        setPressedKeys((current) => updatePressedKeys(current, code, true));
+        pressKey(code);
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       const code = normalizeKeyCode(e.code);
-      
       playSound(code, 'up');
 
       if (settings.displayKeyboard) {
-        setPressedKeys((current) => updatePressedKeys(current, code, false));
+        releaseKey(code);
       }
     };
 
     const handleBlur = () => {
       if (settings.displayKeyboard) {
-        setPressedKeys((current) => current.size === 0 ? current : new Set());
+        keysByCode.forEach((key) => {
+          releaseKey(key.code);
+        });
       }
     };
 
@@ -818,18 +832,11 @@ const VirtualKeyboard = React.memo(function VirtualKeyboard() {
       window.removeEventListener('blur', handleBlur);
       window.removeEventListener('pointerdown', unlockAudio);
     };
-  }, [settings.displayKeyboard]);
-
-  useEffect(() => {
-    if (!settings.displayKeyboard) {
-      setPressedKeys((current) => current.size === 0 ? current : new Set());
-    }
-  }, [settings.displayKeyboard]);
+  }, [settings.displayKeyboard, keyTheme]);
 
   if (!settings.displayKeyboard) return null;
 
   const chassis = themeChassisMap[settings.theme] || themeChassisMap.Classic;
-  const keyTheme = themeKeysMap[settings.theme] || themeKeysMap.Classic;
 
   return (
     <div
@@ -847,7 +854,6 @@ const VirtualKeyboard = React.memo(function VirtualKeyboard() {
                     <KeyCap
                       key={key.code}
                       config={key}
-                      isPressed={pressedKeys.has(key.code)}
                       theme={keyTheme}
                     />
                   ))}
@@ -864,3 +870,4 @@ const VirtualKeyboard = React.memo(function VirtualKeyboard() {
 VirtualKeyboard.displayName = 'VirtualKeyboard';
 
 export default VirtualKeyboard;
+
