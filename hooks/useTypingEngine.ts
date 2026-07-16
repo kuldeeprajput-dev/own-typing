@@ -356,6 +356,15 @@ function applyInput(
   const edit = getEditRange(state.inputValue, value);
   const nextCharStates = [...state.charStates];
   let wordIndex = state.currentWordIndex;
+  
+  // If approaching the end of the word list, dynamically generate and append 50 more words.
+  let nextWords = state.words;
+  if (wordIndex >= nextWords.length - 20) {
+    const extraWords = generateWords(50, state.options);
+    nextWords = [...nextWords, ...extraWords];
+    nextCharStates.push(...extraWords.map((word) => buildWordChars(word, '', false).chars));
+  }
+
   let typed = '';
   let segmentOverflowed = false;
   let completedCorrectChars = state.counters.completedCorrectChars;
@@ -367,7 +376,7 @@ function applyInput(
 
   for (let inputIndex = 0; inputIndex < value.length; inputIndex += 1) {
     const char = value[inputIndex];
-    const target = state.words[wordIndex];
+    const target = nextWords[wordIndex];
     if (!target) {
       finished = true;
       break;
@@ -413,14 +422,14 @@ function applyInput(
     completedCorrectChars += completedWord.correctChars;
 
     // There is no target space after the final word.
-    if (wordIsCorrect && wordIndex < state.words.length - 1) {
+    if (wordIsCorrect && wordIndex < nextWords.length - 1) {
       completedCorrectChars += 1;
     }
 
     finalWordCharIndex = typed.length;
     wordIndex += 1;
 
-    if (wordIndex >= state.words.length) {
+    if (wordIndex >= nextWords.length) {
       finished = true;
       break;
     }
@@ -431,7 +440,7 @@ function applyInput(
 
   let activeCorrectChars = 0;
   if (!finished) {
-    const activeWord = buildWordChars(state.words[wordIndex], typed, true);
+    const activeWord = buildWordChars(nextWords[wordIndex], typed, true);
     nextCharStates[wordIndex] = activeWord.chars;
     activeCorrectChars = activeWord.correctChars;
   }
@@ -457,8 +466,9 @@ function applyInput(
     return {
       state: {
         ...state,
+        words: nextWords,
         charStates: nextCharStates,
-        currentWordIndex: state.words.length - 1,
+        currentWordIndex: nextWords.length - 1,
         currentCharIndex: finalWordCharIndex,
         inputValue: '',
         status: 'finished',
@@ -474,6 +484,7 @@ function applyInput(
   return {
     state: {
       ...state,
+      words: nextWords,
       charStates: nextCharStates,
       currentWordIndex: wordIndex,
       currentCharIndex: typed.length,

@@ -380,7 +380,7 @@ export default function TypingTest() {
             ref={containerRef}
             htmlFor="typing-input"
             onClick={focusTypingInput}
-            className="relative mt-6 h-[6.5rem] w-full max-w-[1400px] shrink-0 cursor-text overflow-y-hidden px-4 text-center sm:h-[7.5rem] md:h-[9.5rem]"
+            className="relative mt-6 h-[6.984rem] w-full max-w-[1400px] shrink-0 cursor-text overflow-y-hidden px-4 text-center sm:h-[7.594rem] md:h-[8.813rem]"
           >
             <WordDisplay
               charStates={charStates}
