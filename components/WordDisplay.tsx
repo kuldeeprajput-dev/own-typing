@@ -153,23 +153,32 @@ const WordDisplay = React.memo(function WordDisplay({
     }
   }, [wordCount]);
 
+  const lastIsDarkRef = useRef(isDark);
+  const lastThemeRef = useRef(settings.theme);
+
   // Update ONLY the changed words on every keystroke — direct DOM, zero React reconciliation
   useLayoutEffect(() => {
     const prev = prevCharStatesRef.current;
     const spans = wordSpansRef.current;
+    const isDarkChanged = lastIsDarkRef.current !== isDark;
+    const themeChanged = lastThemeRef.current !== settings.theme;
+
+    lastIsDarkRef.current = isDark;
+    lastThemeRef.current = settings.theme;
 
     for (let i = 0; i < wordCount; i++) {
       const cs = charStates[i];
       if (!cs || !spans[i]) continue;
 
       // Skip words whose charStates reference hasn't changed (immutable check)
-      if (prev && prev[i] === cs) continue;
+      // BUT do not skip if isDark or theme changed, because we need to re-color them
+      if (!isDarkChanged && !themeChanged && prev && prev[i] === cs) continue;
 
       renderWordToDOM(spans[i], cs, isDark);
     }
 
     prevCharStatesRef.current = charStates;
-  }, [charStates, isDark, wordCount]);
+  }, [charStates, isDark, settings.theme, wordCount]);
 
   // Forward activeWordRef to the current word span
   useLayoutEffect(() => {
